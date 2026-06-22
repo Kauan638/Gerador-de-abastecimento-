@@ -95,6 +95,36 @@ async function processar(){
 
         }
 
+        dadosPedidos =
+        await lerExcel(
+            arquivoPedidos
+        );
+
+        dadosPosicoes =
+        await lerTXT(
+            arquivoPosicoes
+        );
+
+        gerarAbastecimento();
+
+        ocultarLoading();
+
+    }
+
+    catch(erro){
+
+        console.error(erro);
+
+        ocultarLoading();
+
+        alert(
+            "Erro ao processar arquivos."
+        );
+
+    }
+
+}
+
         // =========================
         // LEITURA METABASE
         // =========================
