@@ -433,3 +433,41 @@ function atualizarKPIs(){
     ).length;
 
 }
+
+
+function renderizarTabela(){
+
+    const tbody =
+    document.getElementById(
+        "tbodyResultados"
+    );
+
+    tbody.innerHTML = "";
+
+    resultado.forEach(item=>{
+
+        tbody.innerHTML += `
+        <tr>
+
+            <td>${item.sku}</td>
+
+            <td>${item.descricao}</td>
+
+            <td>${item.pedido}</td>
+
+            <td>${item.endereco}</td>
+
+            <td>${item.saldo}</td>
+
+            <td>${item.norma}</td>
+
+            <td>${item.falta}</td>
+
+            <td>${item.status}</td>
+
+        </tr>
+        `;
+
+    });
+
+}
