@@ -297,21 +297,28 @@ function gerarAbastecimento(){
 
         );
 
-        const saldo =
-        Number(
-            posicao?.QTD_END
-        ) || 0;
+       const saldo =
+Number(
+    String(
+        posicao?.QTD_END || 0
+    )
+    .replace(/\./g,"")
+    .replace(",",".")
+) || 0;
 
-        const norma =
-        Number(
-            posicao?.NORMA_APANHA
-        ) || 0;
+      const norma =
+Number(
+    String(
+        posicao?.NORMA_APANHA || 0
+    )
+    .replace(/\./g,"")
+    .replace(",",".")
+) || 0;
 
-        const falta =
-        Math.max(
-            item.pedido - saldo,
-            0
-        );
+       const falta =
+saldo >= item.pedido
+? 0
+: item.pedido - saldo;
 
         const endereco =
         posicao
