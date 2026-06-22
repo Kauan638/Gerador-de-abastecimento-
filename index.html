@@ -4,15 +4,20 @@
 <head>
 
     <meta charset="UTF-8">
+
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Gerador de Abastecimento PCP</title>
+    <title>
+        Gerador de Abastecimento PCP
+    </title>
 
     <link rel="stylesheet" href="style.css">
 
+    <!-- XLSX -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
+    <!-- Papa Parse -->
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 </head>
@@ -25,75 +30,159 @@
             🚚 Gerador de Abastecimento PCP
         </h1>
 
+        <!-- ===================================== -->
         <!-- UPLOADS -->
+        <!-- ===================================== -->
 
         <div class="card">
 
-            <h2>Arquivos</h2>
+            <h2>
+                Arquivos
+            </h2>
 
-            <div class="upload-group">
+            <div class="upload-area">
 
-                <label>
-                    📊 Metabase Pedidos
-                </label>
+                <!-- PEDIDOS -->
 
-                <input
-                    type="file"
-                    id="arquivoPedidos"
-                    accept=".xlsx,.xls">
+                <div class="upload-box">
+
+                    <label>
+                        📊 Metabase Pedidos
+                    </label>
+
+                    <label
+                        class="upload-btn"
+                        for="arquivoPedidos">
+
+                        Selecionar Arquivo
+
+                    </label>
+
+                    <input
+                        type="file"
+                        id="arquivoPedidos"
+                        accept=".xlsx,.xls">
+
+                    <div
+                        class="upload-nome"
+                        id="nomePedidos">
+
+                        Nenhum arquivo selecionado
+
+                    </div>
+
+                </div>
+
+                <!-- POSIÇÕES -->
+
+                <div class="upload-box">
+
+                    <label>
+                        📦 Posição de Endereços
+                    </label>
+
+                    <label
+                        class="upload-btn"
+                        for="arquivoPosicoes">
+
+                        Selecionar Arquivo
+
+                    </label>
+
+                    <input
+                        type="file"
+                        id="arquivoPosicoes"
+                        accept=".txt,.csv">
+
+                    <div
+                        class="upload-nome"
+                        id="nomePosicoes">
+
+                        Nenhum arquivo selecionado
+
+                    </div>
+
+                </div>
 
             </div>
 
-            <div class="upload-group">
+            <br>
 
-                <label>
-                    📦 Posição de Endereços
-                </label>
+            <button
+                class="btn-processar"
+                onclick="processar()">
 
-                <input
-                    type="file"
-                    id="arquivoPosicoes"
-                    accept=".txt,.csv">
-
-            </div>
-
-            <button onclick="processar()">
                 🚀 Processar Dados
+
             </button>
 
         </div>
 
+        <!-- ===================================== -->
         <!-- KPIs -->
+        <!-- ===================================== -->
 
         <div class="kpis">
 
             <div class="kpi-card">
-                <h3>Total SKUs</h3>
-                <span id="kpiSkus">0</span>
+
+                <h3>
+                    Total SKUs
+                </h3>
+
+                <span id="kpiSkus">
+                    0
+                </span>
+
             </div>
 
             <div class="kpi-card">
-                <h3>Abastecer</h3>
-                <span id="kpiAbastecer">0</span>
+
+                <h3>
+                    Abastecer
+                </h3>
+
+                <span id="kpiAbastecer">
+                    0
+                </span>
+
             </div>
 
             <div class="kpi-card">
-                <h3>Unidades</h3>
-                <span id="kpiUnidades">0</span>
+
+                <h3>
+                    Unidades
+                </h3>
+
+                <span id="kpiUnidades">
+                    0
+                </span>
+
             </div>
 
             <div class="kpi-card">
-                <h3>Sem Apanha</h3>
-                <span id="kpiSemApanha">0</span>
+
+                <h3>
+                    Sem Apanha
+                </h3>
+
+                <span id="kpiSemApanha">
+                    0
+                </span>
+
             </div>
 
         </div>
 
+        <!-- ===================================== -->
         <!-- FILTROS -->
+        <!-- ===================================== -->
 
         <div class="card">
 
-            <h2>Filtros</h2>
+            <h2>
+                Filtros
+            </h2>
 
             <div class="filtros">
 
@@ -126,14 +215,22 @@
 
         </div>
 
-        <!-- TABELA -->
+        <!-- ===================================== -->
+        <!-- RESULTADO -->
+        <!-- ===================================== -->
 
         <div class="card">
 
-            <h2>Resultado</h2>
+            <h2>
+                Resultado
+            </h2>
 
-            <button onclick="exportarExcel()">
+            <button
+                class="btn-exportar"
+                onclick="exportarExcel()">
+
                 📥 Exportar Excel
+
             </button>
 
             <div class="tabela-container">
@@ -145,12 +242,19 @@
                         <tr>
 
                             <th>SKU</th>
+
                             <th>Descrição</th>
+
                             <th>Pedido</th>
-                            <th>Apanha</th>
+
+                            <th>Endereço</th>
+
                             <th>Saldo Atual</th>
+
                             <th>Norma</th>
+
                             <th>Falta</th>
+
                             <th>Status</th>
 
                         </tr>
@@ -166,6 +270,22 @@
             </div>
 
         </div>
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- LOADING -->
+    <!-- ===================================== -->
+
+    <div
+        class="loading"
+        id="loading">
+
+        <div class="spinner"></div>
+
+        <p>
+            Processando arquivos...
+        </p>
 
     </div>
 
