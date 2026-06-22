@@ -105,6 +105,30 @@ async function processar(){
             arquivoPosicoes
         );
 
+console.log(
+    [...new Set(
+        dadosPosicoes.map(
+            x=>x.ESPECIE_END
+        )
+    )]
+);
+
+console.log(
+    [...new Set(
+        dadosPosicoes.map(
+            x=>x.TIPEND
+        )
+    )]
+);
+
+console.log(
+    [...new Set(
+        dadosPosicoes.map(
+            x=>x.ESTATUS_ENDERECO
+        )
+    )]
+);
+        
         gerarAbastecimento();
 
         ocultarLoading();
