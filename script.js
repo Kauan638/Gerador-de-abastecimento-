@@ -270,3 +270,134 @@ function lerTXT(arquivo){
     });
 
 }
+
+// =====================================
+// GERAR ABASTECIMENTO
+// =====================================
+
+function gerarAbastecimento(){
+
+    resultado = [];
+
+    const pedidosAgrupados = {};
+
+    // SOMA PEDIDOS POR SKU
+
+    dadosPedidos.forEach(item=>{
+
+        const sku =
+        String(
+            item.Seqproduto
+        ).trim();
+
+        if(!pedidosAgrupados[sku]){
+
+            pedidosAgrupados[sku] = {
+
+                sku,
+
+                descricao:
+                item.Desccompleta,
+
+                pedido:0
+
+            };
+
+        }
+
+        pedidosAgrupados[sku].pedido +=
+        Number(
+            item.Quantidade
+        ) || 0;
+
+    });
+
+    // CRUZAMENTO
+
+    Object.values(
+        pedidosAgrupados
+    ).forEach(item=>{
+
+        const posicao =
+        dadosPosicoes.find(p=>
+
+            String(
+                p.CODIGO
+            ).trim() === item.sku
+
+        );
+
+        const saldo =
+        Number(
+            posicao?.QTD_END
+        ) || 0;
+
+        const norma =
+        Number(
+            posicao?.NORMA_APANHA
+        ) || 0;
+
+        const falta =
+        Math.max(
+            item.pedido - saldo,
+            0
+        );
+
+        const endereco =
+        posicao
+        ?
+
+        `${posicao.CODRUA}.
+         ${posicao.NROPREDIO}.
+         ${posicao.NROAPARTAMENTO}.
+         ${posicao.NROSALA}`
+
+        :
+
+        "Sem Apanha";
+
+        let status = "OK";
+
+        if(!posicao){
+
+            status =
+            "SEM APANHA";
+
+        }
+
+        else if(falta > 0){
+
+            status =
+            "ABASTECER";
+
+        }
+
+        resultado.push({
+
+            sku:item.sku,
+
+            descricao:
+            item.descricao,
+
+            pedido:
+            item.pedido,
+
+            endereco,
+
+            saldo,
+
+            norma,
+
+            falta,
+
+            status
+
+        });
+
+    });
+
+    atualizarKPIs();
+
+    renderizarTabela();
+
+}
