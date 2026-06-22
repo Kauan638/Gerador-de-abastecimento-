@@ -401,3 +401,35 @@ function gerarAbastecimento(){
     renderizarTabela();
 
 }
+
+
+function atualizarKPIs(){
+
+    document
+    .getElementById("kpiSkus")
+    .innerText =
+    resultado.length;
+
+    document
+    .getElementById("kpiAbastecer")
+    .innerText =
+    resultado.filter(
+        x=>x.status==="ABASTECER"
+    ).length;
+
+    document
+    .getElementById("kpiUnidades")
+    .innerText =
+    resultado.reduce(
+        (s,x)=>s+x.falta,
+        0
+    );
+
+    document
+    .getElementById("kpiSemApanha")
+    .innerText =
+    resultado.filter(
+        x=>x.status==="SEM APANHA"
+    ).length;
+
+}
