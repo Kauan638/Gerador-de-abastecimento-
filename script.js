@@ -125,61 +125,7 @@ async function processar(){
 
 }
 
-        // =========================
-        // LEITURA METABASE
-        // =========================
-
-        dadosPedidos =
-        await lerExcel(
-            arquivoPedidos
-        );
-
-        console.log(
-            "PEDIDOS:"
-        );
-
-        console.log(
-            dadosPedidos[0]
-        );
-
-        // =========================
-        // LEITURA POSIÇÕES
-        // =========================
-
-        dadosPosicoes =
-        await lerTXT(
-            arquivoPosicoes
-        );
-
-        console.log(
-            "POSIÇÕES:"
-        );
-
-        console.log(
-            dadosPosicoes[0]
-        );
-
-        ocultarLoading();
-
-        alert(
-            "Arquivos carregados com sucesso!"
-        );
-
-    }
-
-    catch(erro){
-
-        console.error(erro);
-
-        ocultarLoading();
-
-        alert(
-            "Erro ao processar arquivos."
-        );
-
-    }
-
-}
+    
 
 // =====================================
 // LEITURA EXCEL
