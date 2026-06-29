@@ -324,7 +324,7 @@ dadosPosicoes.forEach(p=>{
     .toUpperCase()
     .trim();
 
-   iif(
+   if(
 
     especie.includes("APANHA")
 
