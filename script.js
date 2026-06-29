@@ -380,41 +380,39 @@ else{
 
         }
 
-      resultado.push({
+          resultado.push({
 
-    sku:item.sku,
+        sku:item.sku,
 
-    descricao:
-    item.descricao,
+        descricao:
+        item.descricao,
 
-    pedido:
-    item.pedido,
+        pedido:
+        item.pedido,
 
-    endereco,
+        endereco,
 
-    saldo,
+        saldo,
 
-    norma,
+        norma,
 
-    falta,
+        falta,
 
-    status,
+        status,
 
-    prioridade:
-    falta >= norma
-    ? "🔴 CRÍTICO"
+        prioridade:
+        falta >= norma
+        ? "🔴 CRÍTICO"
 
-    : falta > (norma * 0.5)
-    ? "🟠 ALTA"
+        : falta > (norma * 0.5)
+        ? "🟠 ALTA"
 
-    : falta > 0
-    ? "🟡 NORMAL"
+        : falta > 0
+        ? "🟡 NORMAL"
 
-    : "🟢 OK"
+        : "🟢 OK"
 
-});
-
-        });
+      });
 
     });
 
