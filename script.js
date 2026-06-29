@@ -106,6 +106,20 @@ async function processar(){
         );
 
 console.log(
+    "PRIMEIRA LINHA POSICOES:"
+);
+
+console.log(
+    dadosPosicoes[0]
+);
+
+console.log(
+    Object.keys(
+        dadosPosicoes[0]
+    )
+);
+        
+console.log(
     [...new Set(
         dadosPosicoes.map(
             x=>x.ESPECIE_END
