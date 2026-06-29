@@ -485,8 +485,9 @@ function renderizarTabela(){
 
             <td>${item.falta}</td>
 
-            <td>${item.status}</td>
+           <td>${item.status}</td>
 
+<td>${item.prioridade}</td>
         </tr>
         `;
 
