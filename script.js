@@ -430,14 +430,11 @@ pulmoes.length > 0
 
 ?
 
-pulmoes.map(p=>
+pulmoes.map(p => {
 
-    `${p.CODRUA}.
-     ${p.NROPREDIO}.
-     ${p.NROAPARTAMENTO}.
-     ${p.NROSALA}`
+    return `${p.CODRUA}.${p.NROPREDIO}.${p.NROAPARTAMENTO}.${p.NROSALA}`;
 
-).join(" | ")
+}).join(" | ")
 
 :
 
