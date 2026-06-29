@@ -324,10 +324,14 @@ dadosPosicoes.forEach(p=>{
     .toUpperCase()
     .trim();
 
-   if(
-    especie === "APANHA"
+   iif(
+
+    especie.includes("APANHA")
+
     &&
+
     !mapaApanhas[codigo]
+
 ){
 
     mapaApanhas[codigo] = p;
@@ -335,9 +339,9 @@ dadosPosicoes.forEach(p=>{
 }
 
 if(
-    especie === "PULMÃO"
-    ||
-    especie === "PULMAO"
+
+    especie.includes("PULM")
+
 ){
 
     if(!mapaPulmoes[codigo]){
