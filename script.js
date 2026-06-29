@@ -648,3 +648,115 @@ function aplicarFiltros(){
     );
 
 }
+
+
+function imprimirAbastecimento(){
+
+    const dadosImpressao =
+
+    resultado
+
+    .filter(x => x.status === "ABASTECER")
+
+    .sort((a,b)=>{
+
+        const peso = {
+
+            "🔴 CRÍTICO":3,
+            "🟠 ALTA":2,
+            "🟡 NORMAL":1,
+            "🟢 OK":0
+
+        };
+
+        return peso[b.prioridade] -
+               peso[a.prioridade];
+
+    });
+
+    let html = `
+    <html>
+    <head>
+
+    <title>Abastecimento PCP</title>
+
+    <style>
+
+        body{
+            font-family:Arial;
+            padding:20px;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        th,td{
+            border:1px solid #ccc;
+            padding:8px;
+            text-align:center;
+            font-size:12px;
+        }
+
+        th{
+            background:#2563eb;
+            color:white;
+        }
+
+    </style>
+
+    </head>
+
+    <body>
+
+    <h2>🚚 Abastecimento PCP</h2>
+
+    <table>
+
+    <tr>
+
+        <th>SKU</th>
+        <th>Descrição</th>
+        <th>Apanha</th>
+        <th>Pulmão</th>
+        <th>Falta</th>
+        <th>Prioridade</th>
+
+    </tr>
+    `;
+
+    dadosImpressao.forEach(item=>{
+
+        html += `
+        <tr>
+
+            <td>${item.sku}</td>
+            <td>${item.descricao}</td>
+            <td>${item.endereco}</td>
+            <td>${item.pulmao}</td>
+            <td>${item.falta}</td>
+            <td>${item.prioridade}</td>
+
+        </tr>
+        `;
+
+    });
+
+    html += `
+    </table>
+
+    </body>
+
+    </html>
+    `;
+
+    const janela = window.open("");
+
+    janela.document.write(html);
+
+    janela.document.close();
+
+    janela.print();
+
+}
