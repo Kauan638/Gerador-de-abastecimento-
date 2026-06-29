@@ -305,6 +305,8 @@ String(
 
 const mapaApanhas = {};
 
+const mapaPulmoes = {};
+
 dadosPosicoes.forEach(p=>{
 
     const codigo =
@@ -322,19 +324,31 @@ dadosPosicoes.forEach(p=>{
     .toUpperCase()
     .trim();
 
-    if(
+   if(
+    especie === "APANHA"
+    &&
+    !mapaApanhas[codigo]
+){
 
-        especie === "APANHA"
+    mapaApanhas[codigo] = p;
 
-        &&
+}
 
-        !mapaApanhas[codigo]
+if(
+    especie === "PULMÃO"
+    ||
+    especie === "PULMAO"
+){
 
-    ){
+    if(!mapaPulmoes[codigo]){
 
-        mapaApanhas[codigo] = p;
+        mapaPulmoes[codigo] = [];
 
     }
+
+    mapaPulmoes[codigo].push(p);
+
+}
 
 });
 
@@ -352,6 +366,11 @@ Object.values(
         item.sku
     ];
 
+const pulmoes =
+mapaPulmoes[
+    item.sku
+] || [];
+    
         const saldo =
         Number(posicao?.QTD_END || 0);
 
@@ -404,6 +423,27 @@ Object.values(
 
         }
 
+
+const enderecoPulmao =
+
+pulmoes.length > 0
+
+?
+
+pulmoes.map(p=>
+
+    `${p.CODRUA}.
+     ${p.NROPREDIO}.
+     ${p.NROAPARTAMENTO}.
+     ${p.NROSALA}`
+
+).join(" | ")
+
+:
+
+"Sem Pulmão";
+
+    
         resultado.push({
 
             sku: item.sku,
