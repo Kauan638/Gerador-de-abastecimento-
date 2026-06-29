@@ -650,6 +650,7 @@ function aplicarFiltros(){
 }
 
 
+```javascript
 function imprimirAbastecimento(){
 
     const dadosImpressao =
@@ -676,87 +677,92 @@ function imprimirAbastecimento(){
 
     let html = `
     <html>
+
     <head>
 
     <title>Abastecimento PCP</title>
 
-  ```css
-<style>
+    <style>
 
-@page{
-    size:A4 portrait;
-    margin:10mm;
-}
+    @page{
+        size:A4 portrait;
+        margin:10mm;
+    }
 
-body{
-    font-family:Arial,sans-serif;
-    padding:15px;
-}
+    body{
+        font-family:Arial,sans-serif;
+        padding:15px;
+    }
 
-h2{
-    text-align:center;
-    margin-bottom:20px;
-}
+    h2{
+        text-align:center;
+        margin-bottom:20px;
+    }
 
-table{
-    width:100%;
-    border-collapse:collapse;
-    table-layout:fixed;
-}
+    table{
+        width:100%;
+        border-collapse:collapse;
+        table-layout:fixed;
+    }
 
-th,
-td{
-    border:1px solid #ccc;
-    padding:8px;
-    text-align:center;
-    vertical-align:middle;
-    font-size:12px;
+    th,
+    td{
+        border:1px solid #ccc;
+        padding:8px;
+        text-align:center;
+        vertical-align:middle;
+        font-size:12px;
 
-    /* força horizontal */
-    writing-mode:horizontal-tb !important;
-    transform:none !important;
+        writing-mode:horizontal-tb !important;
+        transform:none !important;
 
-    /* quebra somente por palavra */
-    white-space:normal;
-    word-break:break-word;
-}
+        white-space:normal;
+        word-break:break-word;
+    }
 
-th{
-    background:#2563eb;
-    color:white;
-    font-weight:bold;
-}
+    th{
+        background:#2563eb;
+        color:white;
+        font-weight:bold;
+    }
 
-th:nth-child(1),
-td:nth-child(1){
-    width:8%;
-}
+    th:nth-child(1),
+    td:nth-child(1){ width:8%; }
 
-th:nth-child(2),
-td:nth-child(2){
-    width:28%;
-}
+    th:nth-child(2),
+    td:nth-child(2){ width:28%; }
 
-th:nth-child(3),
-td:nth-child(3){
-    width:15%;
-    font-weight:bold;
-}
+    th:nth-child(3),
+    td:nth-child(3){ width:15%; }
 
-th:nth-child(4),
-td:nth-child(4){
-    width:30%;
-}
+    th:nth-child(4),
+    td:nth-child(4){ width:30%; }
 
-th:nth-child(5),
-td:nth-child(5){
-    width:8%;
-}
+    th:nth-child(5),
+    td:nth-child(5){ width:8%; }
 
-th:nth-child(6),
-td:nth-child(6){
-    width:11%;
-}
+    th:nth-child(6),
+    td:nth-child(6){ width:11%; }
 
-</style>
+    </style>
+
+    </head>
+
+    <body>
+
+    <h2>🚚 Abastecimento PCP</h2>
+
+    <table>
+
+    <tr>
+
+        <th>SKU</th>
+        <th>Descrição</th>
+        <th>Apanha</th>
+        <th>Pulmão</th>
+        <th>Falta</th>
+        <th>Prioridade</th>
+
+    </tr>
+    `;
 ```
