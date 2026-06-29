@@ -506,3 +506,6 @@ function renderizarTabela(){
     });
 
 }
+
+
+console.log("SCRIPT CARREGADO COM SUCESSO");
