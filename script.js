@@ -268,10 +268,13 @@ function gerarAbastecimento(){
     // SOMA PEDIDOS POR SKU
     dadosPedidos.forEach(item=>{
 
-        const sku =
-        String(item.Seqproduto)
-        .replace(",00","")
-        .trim();
+       const sku =
+String(
+    item.Seqproduto
+)
+.replace(",00","")
+.replace(".00","")
+.trim();
 
         if(!pedidosAgrupados[sku]){
 
@@ -298,9 +301,13 @@ function gerarAbastecimento(){
         const posicao =
         dadosPosicoes.find(p=>{
 
-            const codigo =
-            String(p.CODIGO || "")
-            .trim();
+          const codigo =
+String(
+    p.CODIGO || ""
+)
+.replace(",00","")
+.replace(".00","")
+.trim();
 
             const especie =
             String(p.ESPECIE_END || "")
