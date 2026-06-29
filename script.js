@@ -682,6 +682,7 @@ function imprimirAbastecimento(){
 
     <style>
 
+
         body{
             font-family:Arial;
             padding:20px;
@@ -692,12 +693,32 @@ function imprimirAbastecimento(){
             border-collapse:collapse;
         }
 
+      
         th,td{
-            border:1px solid #ccc;
-            padding:8px;
-            text-align:center;
-            font-size:12px;
-        }
+    border:1px solid #ccc;
+    padding:8px;
+    text-align:center;
+    font-size:12px;
+    vertical-align:middle;
+    word-break:break-word;
+}
+
+td:nth-child(3){
+    min-width:120px;
+    white-space:normal;
+    font-weight:bold;
+}
+
+td:nth-child(4){
+    min-width:280px;
+    white-space:normal;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    table-layout:auto;
+}
 
         th{
             background:#2563eb;
