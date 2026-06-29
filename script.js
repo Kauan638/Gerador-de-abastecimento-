@@ -295,34 +295,58 @@ String(
 
     // CRUZAMENTO
 
-    Object.values(pedidosAgrupados)
-    .forEach(item=>{
+   // =====================================
+// MAPA DE APANHAS
+// =====================================
 
-        const posicao =
-        dadosPosicoes.find(p=>{
+const mapaApanhas = {};
 
-          const codigo =
-String(
-    p.CODIGO || ""
+dadosPosicoes.forEach(p=>{
+
+    const codigo =
+    String(
+        p.CODIGO || ""
+    )
+    .replace(",00","")
+    .replace(".00","")
+    .trim();
+
+    const especie =
+    String(
+        p.ESPECIE_END || ""
+    )
+    .toUpperCase()
+    .trim();
+
+    if(
+
+        especie === "APANHA"
+
+        &&
+
+        !mapaApanhas[codigo]
+
+    ){
+
+        mapaApanhas[codigo] = p;
+
+    }
+
+});
+
+// =====================================
+// CRUZAMENTO
+// =====================================
+
+Object.values(
+    pedidosAgrupados
 )
-.replace(",00","")
-.replace(".00","")
-.trim();
+.forEach(item=>{
 
-            const especie =
-            String(p.ESPECIE_END || "")
-            .toUpperCase()
-            .trim();
-
-            return (
-
-                codigo === item.sku &&
-
-                especie === "APANHA"
-
-            );
-
-        });
+    const posicao =
+    mapaApanhas[
+        item.sku
+    ];
 
         const saldo =
         Number(posicao?.QTD_END || 0);
@@ -407,6 +431,21 @@ String(
 
     });
 
+console.log(
+    "Pedidos:",
+    dadosPedidos.length
+);
+
+console.log(
+    "Posições:",
+    dadosPosicoes.length
+);
+
+console.log(
+    "Resultado:",
+    resultado.length
+);
+    
     atualizarKPIs();
 
     renderizarTabela();
