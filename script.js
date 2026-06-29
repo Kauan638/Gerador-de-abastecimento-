@@ -143,9 +143,11 @@ console.log(
     )]
 );
         
-        gerarAbastecimento();
+       gerarAbastecimento();
 
-        ocultarLoading();
+console.log("Processamento finalizado");
+
+ocultarLoading();
 
     }
 
@@ -261,6 +263,8 @@ function lerTXT(arquivo){
 
 function gerarAbastecimento(){
 
+    console.log("Iniciando geração...");
+    
     resultado = [];
 
     const pedidosAgrupados = {};
