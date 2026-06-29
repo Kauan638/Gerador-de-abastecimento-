@@ -454,6 +454,8 @@ pulmoes.map(p=>
 
             endereco,
 
+            pulmao: enderecoPulmao,
+            
             saldo,
 
             norma,
@@ -549,8 +551,9 @@ function renderizarTabela(
             <td>${item.sku}</td>
             <td>${item.descricao}</td>
             <td>${item.pedido}</td>
-            <td>${item.endereco}</td>
-            <td>${item.saldo}</td>
+           <td>${item.endereco}</td>
+           <td>${item.pulmao}</td>
+           <td>${item.saldo}</td>
             <td>${item.norma}</td>
             <td>${item.falta}</td>
             <td>${item.status}</td>
