@@ -428,21 +428,34 @@ mapaPulmoes[
         }
 
 
-const enderecoPulmao =
+const pulmoesExibidos =
+pulmoes.slice(0,5);
 
-pulmoes.length > 0
-
-?
-
-pulmoes.map(p => {
-
-    return `${p.CODRUA}.${p.NROPREDIO}.${p.NROAPARTAMENTO}.${p.NROSALA}`;
-
-}).join(" | ")
-
-:
-
+let enderecoPulmao =
 "Sem Pulmão";
+
+if(pulmoes.length > 0){
+
+    enderecoPulmao =
+
+    pulmoesExibidos
+
+    .map(p => {
+
+        return `${p.CODRUA}.${p.NROPREDIO}.${p.NROAPARTAMENTO}.${p.NROSALA}`;
+
+    })
+
+    .join(" | ");
+
+    if(pulmoes.length > 5){
+
+        enderecoPulmao +=
+        ` (+${pulmoes.length - 5} mais)`;
+
+    }
+
+}
 
     
         resultado.push({
