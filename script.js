@@ -266,54 +266,44 @@ function gerarAbastecimento(){
     const pedidosAgrupados = {};
 
     // SOMA PEDIDOS POR SKU
-
     dadosPedidos.forEach(item=>{
 
         const sku =
-        String(
-            item.Seqproduto
-        ).trim();
+        String(item.Seqproduto)
+        .replace(",00","")
+        .trim();
 
         if(!pedidosAgrupados[sku]){
 
             pedidosAgrupados[sku] = {
 
                 sku,
-
-                descricao:
-                item.Desccompleta,
-
-                pedido:0
+                descricao: item.Desccompleta,
+                pedido: 0
 
             };
 
         }
 
         pedidosAgrupados[sku].pedido +=
-        Number(
-            item.Quantidade
-        ) || 0;
+        Number(item.Quantidade) || 0;
 
     });
 
     // CRUZAMENTO
 
-    Object.values(
-        pedidosAgrupados
-    ).forEach(item=>{
+    Object.values(pedidosAgrupados)
+    .forEach(item=>{
 
         const posicao =
         dadosPosicoes.find(p=>{
 
             const codigo =
-            String(
-                p.CODIGO || ""
-            ).trim();
+            String(p.CODIGO || "")
+            .trim();
 
             const especie =
-            String(
-                p.ESPECIE_END || ""
-            )
+            String(p.ESPECIE_END || "")
             .toUpperCase()
             .trim();
 
@@ -321,32 +311,21 @@ function gerarAbastecimento(){
 
                 codigo === item.sku &&
 
-                (
-                    especie.includes("APANHA")
-                    ||
-                    especie === "A"
-                )
+                especie === "APANHA"
 
             );
 
         });
 
         const saldo =
-        Number(
-            String(
-                posicao?.QTD_END || 0
-            )
-            .replace(/\./g,"")
-            .replace(",",".")
-        ) || 0;
+        Number(posicao?.QTD_END || 0);
 
         const norma =
         Number(
             String(
                 posicao?.NORMA_APANHA || 0
             )
-            .replace(/\./g,"")
-            .replace(",",".")
+            .match(/\d+/)?.[0]
         ) || 0;
 
         let falta = 0;
@@ -355,9 +334,7 @@ function gerarAbastecimento(){
 
             falta = item.pedido;
 
-        }
-
-        else{
+        }else{
 
             falta = Math.max(
                 item.pedido - saldo,
@@ -371,9 +348,9 @@ function gerarAbastecimento(){
         ?
 
         `${posicao.CODRUA}.
-         ${posicao.NROPREDIO}.
-         ${posicao.NROAPARTAMENTO}.
-         ${posicao.NROSALA}`
+        ${posicao.NROPREDIO}.
+        ${posicao.NROAPARTAMENTO}.
+        ${posicao.NROSALA}`
 
         :
 
@@ -383,27 +360,22 @@ function gerarAbastecimento(){
 
         if(!posicao){
 
-            status =
-            "SEM APANHA";
+            status = "SEM APANHA";
 
         }
-
         else if(falta > 0){
 
-            status =
-            "ABASTECER";
+            status = "ABASTECER";
 
         }
 
         resultado.push({
 
-            sku:item.sku,
+            sku: item.sku,
 
-            descricao:
-            item.descricao,
+            descricao: item.descricao,
 
-            pedido:
-            item.pedido,
+            pedido: item.pedido,
 
             endereco,
 
@@ -418,13 +390,10 @@ function gerarAbastecimento(){
             prioridade:
             falta >= norma
             ? "🔴 CRÍTICO"
-
             : falta > (norma * 0.5)
             ? "🟠 ALTA"
-
             : falta > 0
             ? "🟡 NORMAL"
-
             : "🟢 OK"
 
         });
@@ -434,6 +403,8 @@ function gerarAbastecimento(){
     atualizarKPIs();
 
     renderizarTabela();
+
+    console.log(resultado);
 
 }
 
