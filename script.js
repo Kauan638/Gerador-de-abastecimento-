@@ -493,34 +493,29 @@ function renderizarTabela(){
         "tbodyResultados"
     );
 
-    tbody.innerHTML = "";
+    let html = "";
 
     resultado.forEach(item=>{
 
-        tbody.innerHTML += `
+        html += `
         <tr>
 
             <td>${item.sku}</td>
-
             <td>${item.descricao}</td>
-
             <td>${item.pedido}</td>
-
             <td>${item.endereco}</td>
-
             <td>${item.saldo}</td>
-
             <td>${item.norma}</td>
-
             <td>${item.falta}</td>
+            <td>${item.status}</td>
+            <td>${item.prioridade}</td>
 
-           <td>${item.status}</td>
-
-<td>${item.prioridade}</td>
         </tr>
         `;
 
     });
+
+    tbody.innerHTML = html;
 
 }
 
