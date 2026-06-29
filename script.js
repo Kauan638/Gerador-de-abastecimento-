@@ -680,106 +680,83 @@ function imprimirAbastecimento(){
 
     <title>Abastecimento PCP</title>
 
-    <style>
+  ```css
+<style>
 
+@page{
+    size:A4 portrait;
+    margin:10mm;
+}
 
-        body{
-            font-family:Arial;
-            padding:20px;
-        }
+body{
+    font-family:Arial,sans-serif;
+    padding:15px;
+}
 
-        table{
-            width:100%;
-            border-collapse:collapse;
-        }
-
-      
-        th,td{
-    border:1px solid #ccc;
-    padding:8px;
+h2{
     text-align:center;
-    font-size:12px;
-    vertical-align:middle;
-    word-break:break-word;
-}
-
-td:nth-child(3){
-    min-width:120px;
-    white-space:normal;
-    font-weight:bold;
-}
-
-td:nth-child(4){
-    min-width:280px;
-    white-space:normal;
+    margin-bottom:20px;
 }
 
 table{
     width:100%;
     border-collapse:collapse;
-    table-layout:auto;
+    table-layout:fixed;
 }
 
-        th{
-            background:#2563eb;
-            color:white;
-        }
+th,
+td{
+    border:1px solid #ccc;
+    padding:8px;
+    text-align:center;
+    vertical-align:middle;
+    font-size:12px;
 
-    </style>
+    /* força horizontal */
+    writing-mode:horizontal-tb !important;
+    transform:none !important;
 
-    </head>
-
-    <body>
-
-    <h2>🚚 Abastecimento PCP</h2>
-
-    <table>
-
-    <tr>
-
-        <th>SKU</th>
-        <th>Descrição</th>
-        <th>Apanha</th>
-        <th>Pulmão</th>
-        <th>Falta</th>
-        <th>Prioridade</th>
-
-    </tr>
-    `;
-
-    dadosImpressao.forEach(item=>{
-
-        html += `
-        <tr>
-
-            <td>${item.sku}</td>
-            <td>${item.descricao}</td>
-            <td>${item.endereco}</td>
-            <td>${item.pulmao}</td>
-            <td>${item.falta}</td>
-            <td>${item.prioridade}</td>
-
-        </tr>
-        `;
-
-    });
-
-    html += `
-    </table>
-
-    </body>
-
-    </html>
-    `;
-
-    const janela = window.open("");
-
-    janela.document.write(html);
-
-    janela.document.close();
-
-    janela.print();
-
+    /* quebra somente por palavra */
+    white-space:normal;
+    word-break:break-word;
 }
 
-console.log("FUNÇÃO IMPRESSÃO CARREGADA");
+th{
+    background:#2563eb;
+    color:white;
+    font-weight:bold;
+}
+
+th:nth-child(1),
+td:nth-child(1){
+    width:8%;
+}
+
+th:nth-child(2),
+td:nth-child(2){
+    width:28%;
+}
+
+th:nth-child(3),
+td:nth-child(3){
+    width:15%;
+    font-weight:bold;
+}
+
+th:nth-child(4),
+td:nth-child(4){
+    width:30%;
+}
+
+th:nth-child(5),
+td:nth-child(5){
+    width:8%;
+}
+
+th:nth-child(6),
+td:nth-child(6){
+    width:11%;
+}
+
+</style>
+```
