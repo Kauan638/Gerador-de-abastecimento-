@@ -490,7 +490,9 @@ function atualizarKPIs(){
 }
 
 
-function renderizarTabela(){
+function renderizarTabela(
+    dados = resultado
+){
 
     const tbody =
     document.getElementById(
@@ -499,7 +501,7 @@ function renderizarTabela(){
 
     let html = "";
 
-    resultado.forEach(item=>{
+    dados.forEach(item=>{
 
         html += `
         <tr>
