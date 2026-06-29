@@ -760,3 +760,5 @@ function imprimirAbastecimento(){
     janela.print();
 
 }
+
+console.log("FUNÇÃO IMPRESSÃO CARREGADA");
