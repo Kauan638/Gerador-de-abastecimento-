@@ -288,15 +288,34 @@ function gerarAbastecimento(){
         pedidosAgrupados
     ).forEach(item=>{
 
-        const posicao =
-        dadosPosicoes.find(p=>
+       const posicao =
+dadosPosicoes.find(p=>{
 
-            String(
-                p.CODIGO
-            ).trim() === item.sku
+    const codigo =
+    String(
+        p.CODIGO || ""
+    ).trim();
 
-        );
+    const especie =
+    String(
+        p.ESPECIE_END || ""
+    )
+    .toUpperCase()
+    .trim();
 
+    return (
+
+        codigo === item.sku &&
+
+        (
+            especie.includes("APANHA")
+            ||
+            especie === "A"
+        )
+
+    );
+
+});
        const saldo =
 Number(
     String(
@@ -315,10 +334,22 @@ Number(
     .replace(",",".")
 ) || 0;
 
-       const falta =
-saldo >= item.pedido
-? 0
-: item.pedido - saldo;
+       let falta = 0;
+
+if(!posicao){
+
+    falta = item.pedido;
+
+}
+
+else{
+
+    falta = Math.max(
+        item.pedido - saldo,
+        0
+    );
+
+}
 
         const endereco =
         posicao
@@ -349,25 +380,39 @@ saldo >= item.pedido
 
         }
 
-        resultado.push({
+      resultado.push({
 
-            sku:item.sku,
+    sku:item.sku,
 
-            descricao:
-            item.descricao,
+    descricao:
+    item.descricao,
 
-            pedido:
-            item.pedido,
+    pedido:
+    item.pedido,
 
-            endereco,
+    endereco,
 
-            saldo,
+    saldo,
 
-            norma,
+    norma,
 
-            falta,
+    falta,
 
-            status
+    status,
+
+    prioridade:
+    falta >= norma
+    ? "🔴 CRÍTICO"
+
+    : falta > (norma * 0.5)
+    ? "🟠 ALTA"
+
+    : falta > 0
+    ? "🟡 NORMAL"
+
+    : "🟢 OK"
+
+});
 
         });
 
