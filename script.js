@@ -525,3 +525,63 @@ function renderizarTabela(){
 
 
 console.log("SCRIPT CARREGADO COM SUCESSO");
+
+
+// =====================================
+// FILTROS
+// =====================================
+
+document
+.getElementById("filtroSKU")
+.addEventListener(
+    "input",
+    aplicarFiltros
+);
+
+document
+.getElementById("filtroStatus")
+.addEventListener(
+    "change",
+    aplicarFiltros
+);
+
+function aplicarFiltros(){
+
+    const skuFiltro =
+    document
+    .getElementById("filtroSKU")
+    .value
+    .toLowerCase()
+    .trim();
+
+    const statusFiltro =
+    document
+    .getElementById("filtroStatus")
+    .value;
+
+    const filtrado =
+    resultado.filter(item=>{
+
+        const skuOk =
+
+            item.sku
+            .toString()
+            .toLowerCase()
+            .includes(skuFiltro);
+
+        const statusOk =
+
+            !statusFiltro ||
+
+            item.status ===
+            statusFiltro;
+
+        return skuOk && statusOk;
+
+    });
+
+    renderizarTabela(
+        filtrado
+    );
+
+}
