@@ -288,68 +288,69 @@ function gerarAbastecimento(){
         pedidosAgrupados
     ).forEach(item=>{
 
-       const posicao =
-dadosPosicoes.find(p=>{
+        const posicao =
+        dadosPosicoes.find(p=>{
 
-    const codigo =
-    String(
-        p.CODIGO || ""
-    ).trim();
+            const codigo =
+            String(
+                p.CODIGO || ""
+            ).trim();
 
-    const especie =
-    String(
-        p.ESPECIE_END || ""
-    )
-    .toUpperCase()
-    .trim();
+            const especie =
+            String(
+                p.ESPECIE_END || ""
+            )
+            .toUpperCase()
+            .trim();
 
-    return (
+            return (
 
-        codigo === item.sku &&
+                codigo === item.sku &&
 
-        (
-            especie.includes("APANHA")
-            ||
-            especie === "A"
-        )
+                (
+                    especie.includes("APANHA")
+                    ||
+                    especie === "A"
+                )
 
-    );
+            );
 
-});
-       const saldo =
-Number(
-    String(
-        posicao?.QTD_END || 0
-    )
-    .replace(/\./g,"")
-    .replace(",",".")
-) || 0;
+        });
 
-      const norma =
-Number(
-    String(
-        posicao?.NORMA_APANHA || 0
-    )
-    .replace(/\./g,"")
-    .replace(",",".")
-) || 0;
+        const saldo =
+        Number(
+            String(
+                posicao?.QTD_END || 0
+            )
+            .replace(/\./g,"")
+            .replace(",",".")
+        ) || 0;
 
-       let falta = 0;
+        const norma =
+        Number(
+            String(
+                posicao?.NORMA_APANHA || 0
+            )
+            .replace(/\./g,"")
+            .replace(",",".")
+        ) || 0;
 
-if(!posicao){
+        let falta = 0;
 
-    falta = item.pedido;
+        if(!posicao){
 
-}
+            falta = item.pedido;
 
-else{
+        }
 
-    falta = Math.max(
-        item.pedido - saldo,
-        0
-    );
+        else{
 
-}
+            falta = Math.max(
+                item.pedido - saldo,
+                0
+            );
+
+        }
 
         const endereco =
         posicao
@@ -380,39 +381,39 @@ else{
 
         }
 
-          resultado.push({
+        resultado.push({
 
-        sku:item.sku,
+            sku:item.sku,
 
-        descricao:
-        item.descricao,
+            descricao:
+            item.descricao,
 
-        pedido:
-        item.pedido,
+            pedido:
+            item.pedido,
 
-        endereco,
+            endereco,
 
-        saldo,
+            saldo,
 
-        norma,
+            norma,
 
-        falta,
+            falta,
 
-        status,
+            status,
 
-        prioridade:
-        falta >= norma
-        ? "🔴 CRÍTICO"
+            prioridade:
+            falta >= norma
+            ? "🔴 CRÍTICO"
 
-        : falta > (norma * 0.5)
-        ? "🟠 ALTA"
+            : falta > (norma * 0.5)
+            ? "🟠 ALTA"
 
-        : falta > 0
-        ? "🟡 NORMAL"
+            : falta > 0
+            ? "🟡 NORMAL"
 
-        : "🟢 OK"
+            : "🟢 OK"
 
-      });
+        });
 
     });
 
@@ -421,7 +422,6 @@ else{
     renderizarTabela();
 
 }
-
 
 function atualizarKPIs(){
 
