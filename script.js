@@ -533,19 +533,23 @@ console.log("SCRIPT CARREGADO COM SUCESSO");
 // FILTROS
 // =====================================
 
-document
-.getElementById("filtroSKU")
-.addEventListener(
-    "input",
-    aplicarFiltros
-);
+window.addEventListener("load",()=>{
 
-document
-.getElementById("filtroStatus")
-.addEventListener(
-    "change",
-    aplicarFiltros
-);
+    document
+    .getElementById("filtroSKU")
+    .addEventListener(
+        "input",
+        aplicarFiltros
+    );
+
+    document
+    .getElementById("filtroStatus")
+    .addEventListener(
+        "change",
+        aplicarFiltros
+    );
+
+});
 
 function aplicarFiltros(){
 
