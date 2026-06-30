@@ -650,7 +650,6 @@ function aplicarFiltros(){
 }
 
 
-```javascript
 function imprimirAbastecimento(){
 
     const dadosImpressao =
