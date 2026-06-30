@@ -764,30 +764,83 @@ ${dadosImpressao.length} SKUs
 
     <table class="tabela-impressao">
 
-    <tr>
-        <th>SKU</th>
-        <th>Descrição</th>
-        <th>Apanha</th>
-        <th>Pulmão</th>
-        <th>Falta</th>
-        <th>Prioridade</th>
-    </tr>
+   <thead>
+
+<tr>
+
+    <th style="width:34%;">SKU / Descrição</th>
+
+    <th style="width:18%;">Apanha</th>
+
+    <th style="width:28%;">Pulmões</th>
+
+    <th style="width:10%;">Falta</th>
+
+    <th style="width:10%;">Prioridade</th>
+
+</tr>
+
+</thead>
     `;
 
     dadosImpressao.forEach(item=>{
 
-        html += `
-        <tr>
-            <td>${item.sku}</td>
-            <td>${item.descricao}</td>
-            <td>${item.endereco}</td>
-            <td>${item.pulmao}</td>
-            <td>${item.falta}</td>
-            <td>${item.prioridade}</td>
-        </tr>
-        `;
+    let classe = "normal";
 
-    });
+    if(item.prioridade === "🔴 CRÍTICO"){
+        classe = "critico";
+    }
+    else if(item.prioridade === "🟠 ALTA"){
+        classe = "alta";
+    }
+
+    const pulmoes = item.pulmao
+        .replaceAll(" | ", "<br>")
+        .replace(/\(\+/g,"<br>(+");
+
+    html += `
+
+    <tr class="${classe}">
+
+        <td>
+
+            <b>${item.sku}</b>
+
+            <br><br>
+
+            ${item.descricao}
+
+        </td>
+
+        <td>
+
+            ${item.endereco}
+
+        </td>
+
+        <td>
+
+            ${pulmoes}
+
+        </td>
+
+        <td style="text-align:center;font-size:18px;">
+
+            <b>${item.falta}</b>
+
+        </td>
+
+        <td style="text-align:center;font-size:16px;">
+
+            ${item.prioridade}
+
+        </td>
+
+    </tr>
+
+    `;
+
+});
 
     html += `
     </table>
