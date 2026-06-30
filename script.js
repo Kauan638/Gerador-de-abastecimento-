@@ -654,55 +654,46 @@ function imprimirAbastecimento(){
 
     const peso = {
 
-    "🔴 CRÍTICO":3,
-    "🟠 ALTA":2,
-    "🟡 NORMAL":1,
-    "🟢 OK":0
+        "🔴 CRÍTICO":3,
+        "🟠 ALTA":2,
+        "🟡 NORMAL":1,
+        "🟢 OK":0
 
-};
+    };
 
-const dadosImpressao =
+    const dadosImpressao =
 
-dadosImpressao.sort((a,b)=>{
+    resultado
 
-    const ruaA =
-    Number(
-        a.endereco.split(".")[0]
-    );
+    .filter(item => item.status === "ABASTECER")
 
-    const ruaB =
-    Number(
-        b.endereco.split(".")[0]
-    );
+    .sort((a,b)=>{
 
-    if(ruaA !== ruaB){
+        const ruaA =
+        Number(a.endereco.split(".")[0]) || 0;
 
-        return ruaA - ruaB;
+        const ruaB =
+        Number(b.endereco.split(".")[0]) || 0;
 
-    }
+        if(ruaA !== ruaB){
 
-    return b.falta - a.falta;
+            return ruaA - ruaB;
 
-});
-    
-resultado
+        }
 
-.filter(x => x.status === "ABASTECER")
+        if(peso[b.prioridade] !== peso[a.prioridade]){
 
-.sort((a,b)=>{
+            return peso[b.prioridade] - peso[a.prioridade];
 
-    if(peso[b.prioridade] !== peso[a.prioridade]){
+        }
 
-        return peso[b.prioridade] - peso[a.prioridade];
+        return b.falta - a.falta;
 
-    }
-
-    return b.falta - a.falta;
-
-});
+    });
 
     let html = `
     <html>
+
     <head>
 
     <title>Abastecimento PCP</title>
@@ -721,48 +712,59 @@ resultado
 
     h2{
         text-align:center;
-        margin-bottom:20px;
+        margin-bottom:10px;
     }
 
-   table{
+    p{
+        margin-bottom:20px;
+        font-size:13px;
+    }
 
-    width:100%;
+    table{
+        width:100%;
+        border-collapse:collapse;
+        table-layout:fixed;
+    }
 
-    border-collapse:collapse;
+    thead{
+        display:table-header-group;
+    }
 
-    table-layout:fixed;
+    tr{
+        page-break-inside:avoid;
+    }
 
-}
+    th{
+        background:#2563eb;
+        color:white;
+        padding:10px;
+        font-size:13px;
+        border:1px solid #ccc;
+    }
 
-th{
+    td{
+        border:1px solid #ddd;
+        padding:8px;
+        font-size:12px;
+        vertical-align:top;
+    }
 
-    background:#2563eb;
+    .rua{
+        background:#1e40af;
+        color:white;
+        font-size:16px;
+        font-weight:bold;
+        text-align:left;
+        padding:10px;
+    }
 
-    color:white;
+    .critico{
+        background:#ffe5e5;
+    }
 
-    font-size:13px;
-
-    padding:10px;
-
-}
-
-td{
-
-    border:1px solid #ddd;
-
-    padding:8px;
-
-    font-size:12px;
-
-    vertical-align:top;
-
-}
-
-tr{
-
-    page-break-inside:avoid;
-
-}
+    .alta{
+        background:#fff5db;
+    }
 
     </style>
 
@@ -772,144 +774,153 @@ tr{
 
     <h2>🚚 GERADOR DE ABASTECIMENTO PCP</h2>
 
-<p>
+    <p>
 
-<b>Data:</b>
-${new Date().toLocaleString("pt-BR")}
+    <b>Data:</b>
+    ${new Date().toLocaleString("pt-BR")}
 
-<br>
+    <br>
 
-<b>Total para abastecer:</b>
-${dadosImpressao.length} SKUs
+    <b>Total para abastecer:</b>
+    ${dadosImpressao.length} SKUs
 
-</p>
+    </p>
 
-    <table class="tabela-impressao">
+    <table>
 
-   <thead>
-
-<tr>
-
-    <th style="width:34%;">SKU / Descrição</th>
-
-    <th style="width:18%;">Apanha</th>
-
-    <th style="width:28%;">Pulmões</th>
-
-    <th style="width:10%;">Falta</th>
-
-    <th style="width:10%;">Prioridade</th>
-
-</tr>
-
-</thead>
-    `;
-
-let ruaAtual = "";
-    
-    dadosImpressao.forEach(item=>{
-
-const rua = item.endereco.split(".")[0];
-
-if(rua !== ruaAtual){
-
-    ruaAtual = rua;
-
-    html += `
+    <thead>
 
     <tr>
 
-        <td colspan="5"
-
-            style="
-                background:#1e40af;
-                color:white;
-                font-size:18px;
-                font-weight:bold;
-                text-align:left;
-                padding:12px;
-            ">
-
-            📍 RUA ${rua}
-
-        </td>
+        <th style="width:30%;">SKU / Descrição</th>
+        <th style="width:15%;">Apanha</th>
+        <th style="width:30%;">Pulmões</th>
+        <th style="width:10%;">Falta</th>
+        <th style="width:15%;">Prioridade</th>
 
     </tr>
 
+    </thead>
+
+    <tbody>
     `;
 
-}
-        
-    let classe = "normal";
+    let ruaAtual = "";
 
-    if(item.prioridade === "🔴 CRÍTICO"){
-        classe = "critico";
-    }
-    else if(item.prioridade === "🟠 ALTA"){
-        classe = "alta";
-    }
+    dadosImpressao.forEach(item=>{
 
-    const pulmoes = item.pulmao
-        .replaceAll(" | ", "<br>")
-        .replace(/\(\+/g,"<br>(+");
+        const rua =
+        item.endereco.split(".")[0];
+
+        if(rua !== ruaAtual){
+
+            ruaAtual = rua;
+
+            html += `
+
+            <tr>
+
+                <td
+                    colspan="5"
+                    class="rua">
+
+                    📍 RUA ${rua}
+
+                </td>
+
+            </tr>
+
+            `;
+
+        }
+
+        let classe = "";
+
+        if(item.prioridade === "🔴 CRÍTICO"){
+
+            classe = "critico";
+
+        }
+
+        else if(item.prioridade === "🟠 ALTA"){
+
+            classe = "alta";
+
+        }
+
+        const pulmoes =
+        item.pulmao
+        .replaceAll(" | ","<br>");
+
+        html += `
+
+        <tr class="${classe}">
+
+            <td>
+
+                <b>${item.sku}</b>
+
+                <br><br>
+
+                ${item.descricao}
+
+            </td>
+
+            <td>
+
+                ${item.endereco}
+
+            </td>
+
+            <td>
+
+                ${pulmoes}
+
+            </td>
+
+            <td style="text-align:center;font-size:18px;">
+
+                <b>${item.falta}</b>
+
+            </td>
+
+            <td style="text-align:center;font-size:16px;">
+
+                ${item.prioridade}
+
+            </td>
+
+        </tr>
+
+        `;
+
+    });
 
     html += `
 
-    <tr class="${classe}">
+    </tbody>
 
-        <td>
-
-            <b>${item.sku}</b>
-
-            <br><br>
-
-            ${item.descricao}
-
-        </td>
-
-        <td>
-
-            ${item.endereco}
-
-        </td>
-
-        <td>
-
-            ${pulmoes}
-
-        </td>
-
-        <td style="text-align:center;font-size:18px;">
-
-            <b>${item.falta}</b>
-
-        </td>
-
-        <td style="text-align:center;font-size:16px;">
-
-            ${item.prioridade}
-
-        </td>
-
-    </tr>
-
-    `;
-
-});
-
-    html += `
     </table>
 
     </body>
+
     </html>
+
     `;
 
-    const janela = window.open("","_blank");
+    const janela =
+    window.open("","_blank");
 
     janela.document.write(html);
 
     janela.document.close();
 
-    janela.print();
+    janela.focus();
+
+    setTimeout(()=>{
+
+        janela.print();
+
+    },300);
 
 }
