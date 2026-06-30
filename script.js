@@ -771,6 +771,8 @@ table{
 
     table-layout:fixed;
 
+    page-break-before:auto;
+
 }
 
 thead{
