@@ -731,7 +731,7 @@ body{
 
     margin:0;
 
-    padding:8mm;
+    padding:0;
 
 }
 
@@ -743,9 +743,9 @@ h1{
 
     color:#1e3a8a;
 
-    font-size:24px;
+    font-size:18px;
 
-    margin-bottom:18px;
+    margin-bottom:8px;
 
 }
 
@@ -757,9 +757,9 @@ h1{
 
     align-items:flex-start;
 
-    margin-bottom:18px;
+    margin-bottom:8px;
 
-    font-size:13px;
+    font-size:12px;
 
 }
 
