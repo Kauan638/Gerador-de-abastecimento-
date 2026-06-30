@@ -720,6 +720,38 @@ function imprimirAbastecimento(){
         font-size:13px;
     }
 
+.critico{
+
+    background:#ffe5e5;
+
+}
+
+.alta{
+
+    background:#fff5cc;
+
+}
+
+.normal{
+
+    background:white;
+
+}
+
+.rua{
+
+    background:#1e40af;
+
+    color:white;
+
+    font-size:16px;
+
+    font-weight:bold;
+
+    text-align:left;
+
+}
+
     table{
         width:100%;
         border-collapse:collapse;
@@ -834,20 +866,18 @@ function imprimirAbastecimento(){
 
         }
 
-        let classe = "";
+     let classe = "normal";
 
-        if(item.prioridade === "🔴 CRÍTICO"){
+if(item.prioridade === "🔴 CRÍTICO"){
 
-            classe = "critico";
+    classe = "critico";
 
-        }
+}
+else if(item.prioridade === "🟠 ALTA"){
 
-        else if(item.prioridade === "🟠 ALTA"){
+    classe = "alta";
 
-            classe = "alta";
-
-        }
-
+}
         const pulmoes =
         item.pulmao
         .replaceAll(" | ","<br>");
