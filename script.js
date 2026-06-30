@@ -429,7 +429,7 @@ mapaPulmoes[
 
 
 const pulmoesExibidos =
-pulmoes.slice(0,5);
+pulmoes.slice(0,3);
 
 let enderecoPulmao =
 "Sem Pulmão";
@@ -448,10 +448,10 @@ if(pulmoes.length > 0){
 
     .join(" | ");
 
-    if(pulmoes.length > 5){
+    if(pulmoes.length > 3){
 
         enderecoPulmao +=
-        ` (+${pulmoes.length - 5} mais)`;
+        ` (+${pulmoes.length - 3} mais)`;
 
     }
 
