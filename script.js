@@ -905,7 +905,7 @@ td{
 
 .falta{
 
-    font-size:28px;
+    font-size:20px;
 
     font-weight:bold;
 
@@ -917,7 +917,9 @@ td{
 
 .prioridade{
 
-    font-size:18px;
+    font-size:14px;
+
+    font-weight:bold;
 
     text-align:center;
 
@@ -1027,66 +1029,7 @@ Prioridade
 
 </tr>
 
-</thead>
 
-<tbody>
-
-    </head>
-
-    <body>
-
-    <h1 style="
-        text-align:center;
-        margin:0;
-        font-size:34px;
-        color:#1e3a8a;
-    ">
-        🚚 GERADOR DE ABASTECIMENTO PCP
-    </h1>
-
-    <div style="
-        margin-top:15px;
-        margin-bottom:25px;
-        display:flex;
-        justify-content:space-between;
-        font-size:14px;
-    ">
-
-        <div>
-
-            <b>Data:</b>
-            ${new Date().toLocaleString("pt-BR")}
-
-            <br>
-
-            <b>Total para abastecer:</b>
-            ${dadosImpressao.length} SKUs
-
-        </div>
-
-    </div>
-
-    <table>
-
-        <thead>
-
-            <tr>
-
-                <th style="width:30%;">SKU / Descrição</th>
-
-                <th style="width:15%;">Apanha</th>
-
-                <th style="width:30%;">Pulmões</th>
-
-                <th style="width:10%;">Falta</th>
-
-                <th style="width:15%;">Prioridade</th>
-
-            </tr>
-
-        </thead>
-
-        <tbody>
 `;
 
 let ruaAtual = "";
