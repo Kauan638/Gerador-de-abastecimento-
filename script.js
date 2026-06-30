@@ -665,113 +665,103 @@ function imprimirAbastecimento(){
 
     resultado
 
-    .filter(item => item.status === "ABASTECER")
+    .filter(item=>item.status==="ABASTECER")
 
-   .sort((a,b)=>{
+    .sort((a,b)=>{
 
-    const peso = {
+        const ruaA =
+        Number(a.endereco.split(".")[0]) || 0;
 
-        "🔴 CRÍTICO":3,
-        "🟠 ALTA":2,
-        "🟡 NORMAL":1,
-        "🟢 OK":0
+        const ruaB =
+        Number(b.endereco.split(".")[0]) || 0;
 
-    };
+        if(ruaA!==ruaB){
 
-    const ruaA =
-    Number(a.endereco.split(".")[0]);
+            return ruaA-ruaB;
 
-    const ruaB =
-    Number(b.endereco.split(".")[0]);
+        }
 
-    if(ruaA !== ruaB){
+        if(
+            peso[b.prioridade]!==peso[a.prioridade]
+        ){
 
-        return ruaA - ruaB;
+            return peso[b.prioridade]-peso[a.prioridade];
 
-    }
+        }
 
-    if(peso[b.prioridade] !== peso[a.prioridade]){
+        return b.falta-a.falta;
 
-        return peso[b.prioridade] - peso[a.prioridade];
-
-    }
-
-    return b.falta - a.falta;
-
-});
+    });
 
     let html = `
-    <html>
 
-    <head>
+<html>
 
-    <title>Abastecimento PCP</title>
+<head>
 
-    <style>
+<title>Abastecimento PCP</title>
 
-    @page{
-        size:A4 portrait;
-        margin:10mm;
-    }
+<style>
 
-    body{
-        font-family:Arial,sans-serif;
-        padding:15px;
-    }
+@page{
 
-    h2{
-        text-align:center;
-        margin-bottom:10px;
-    }
+    size:A4 portrait;
 
-    p{
-        margin-bottom:20px;
-        font-size:13px;
-    }
-
-.critico{
-
-    background:#ffd6d6;
-
-    font-weight:bold;
+    margin:8mm;
 
 }
 
-.alta{
+*{
 
-    background:#fff2b3;
-
-}
-
-.normal{
-
-    background:white;
+    box-sizing:border-box;
 
 }
 
-.rua{
+body{
 
-    background:#1e3a8a;
+    font-family:Arial,Helvetica,sans-serif;
 
-    color:white;
+    margin:0;
+
+    padding:0;
+
+    color:#222;
+
+}
+
+h1{
+
+    text-align:center;
 
     font-size:18px;
 
-    font-weight:bold;
+    margin:0;
 
-    text-align:left;
-
-    padding:12px;
-
-    letter-spacing:1px;
+    margin-bottom:8px;
 
 }
 
-    table{
-        width:100%;
-        border-collapse:collapse;
-        table-layout:fixed;
-    }
+.info{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-bottom:15px;
+
+    font-size:12px;
+
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    table-layout:fixed;
+
+}
 
 thead{
 
@@ -779,9 +769,9 @@ thead{
 
 }
 
-tfoot{
+tbody{
 
-    display:table-footer-group;
+    display:table-row-group;
 
 }
 
@@ -791,186 +781,334 @@ tr{
 
 }
 
-    thead{
-        display:table-header-group;
-    }
+th{
 
-    tr{
-        page-break-inside:avoid;
-    }
+    background:#2563eb;
 
-    th{
-        background:#2563eb;
-        color:white;
-        padding:10px;
-        font-size:13px;
-        border:1px solid #ccc;
-    }
+    color:white;
 
-    td{
-        border:1px solid #ddd;
-        padding:8px;
-        font-size:12px;
-        vertical-align:top;
+    border:1px solid #d9d9d9;
+
+    padding:8px;
+
+    font-size:12px;
+
+}
+
+td{
+
+    border:1px solid #d9d9d9;
+
+    padding:8px;
+
+    vertical-align:top;
+
+    font-size:11px;
+
+}
+
+.colSku{
+
+    width:30%;
+
+}
+
+.colApanha{
+
+    width:16%;
+
+}
+
+.colPulmao{
+
+    width:31%;
+
+}
+
+.colFalta{
+
+    width:10%;
+
+}
+
+.colPrio{
+
+    width:13%;
+
+}
+
+.rua{
+
+    background:#1e40af !important;
+
+    color:#fff !important;
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    padding:12px;
+
+    text-align:left;
+
+}
+
+.critico{
+
+    background:#ffe4e4;
+
+}
+
+.alta{
+
+    background:#fff5d4;
+
+}
+
+.normal{
+
+    background:white;
+
+}
+
+.sku{
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    margin-bottom:8px;
+
+}
+
+.descricao{
+
+    font-size:12px;
+
+    line-height:17px;
+
+}
+
+.apanha{
+
+    font-size:15px;
+
+    font-weight:bold;
+
+}
+
+.pulmao{
+
+    line-height:18px;
+
+}
+
+.falta{
+
+    font-size:28px;
+
+    font-weight:bold;
+
+    color:#dc2626;
+
+    text-align:center;
+
+}
+
+.prioridade{
+
+    font-size:18px;
+
+    text-align:center;
+
+}
+
+@media print{
+
+    body{
+
+        zoom:100%;
+
     }
 
     .rua{
-        background:#1e40af;
-        color:white;
-        font-size:16px;
-        font-weight:bold;
-        text-align:left;
-        padding:10px;
+
+        -webkit-print-color-adjust:exact;
+
+        print-color-adjust:exact;
+
     }
 
     .critico{
-        background:#ffe5e5;
+
+        -webkit-print-color-adjust:exact;
+
+        print-color-adjust:exact;
+
     }
 
     .alta{
-        background:#fff5db;
+
+        -webkit-print-color-adjust:exact;
+
+        print-color-adjust:exact;
+
     }
 
-    </style>
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>
+
+🚚 GERADOR DE ABASTECIMENTO PCP
+
+</h1>
+
+<div class="info">
+
+<div>
+
+<b>Data:</b>
+
+${new Date().toLocaleString("pt-BR")}
+
+</div>
+
+<div>
+
+<b>Total:</b>
+
+${dadosImpressao.length} SKUs
+
+</div>
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th class="colSku">
+
+SKU / Descrição
+
+</th>
+
+<th class="colApanha">
+
+Apanha
+
+</th>
+
+<th class="colPulmao">
+
+Pulmões
+
+</th>
+
+<th class="colFalta">
+
+Falta
+
+</th>
+
+<th class="colPrio">
+
+Prioridade
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
 
     </head>
 
     <body>
 
-    <h2>🚚 GERADOR DE ABASTECIMENTO PCP</h2>
+    <h1 style="
+        text-align:center;
+        margin:0;
+        font-size:34px;
+        color:#1e3a8a;
+    ">
+        🚚 GERADOR DE ABASTECIMENTO PCP
+    </h1>
 
-    <p>
+    <div style="
+        margin-top:15px;
+        margin-bottom:25px;
+        display:flex;
+        justify-content:space-between;
+        font-size:14px;
+    ">
 
-    <b>Data:</b>
-    ${new Date().toLocaleString("pt-BR")}
+        <div>
 
-    <br>
+            <b>Data:</b>
+            ${new Date().toLocaleString("pt-BR")}
 
-    <b>Total para abastecer:</b>
-    ${dadosImpressao.length} SKUs
+            <br>
 
-    </p>
+            <b>Total para abastecer:</b>
+            ${dadosImpressao.length} SKUs
+
+        </div>
+
+    </div>
 
     <table>
 
-    <thead>
+        <thead>
 
-    <tr>
+            <tr>
 
-        <th style="width:30%;">SKU / Descrição</th>
-        <th style="width:15%;">Apanha</th>
-        <th style="width:30%;">Pulmões</th>
-        <th style="width:10%;">Falta</th>
-        <th style="width:15%;">Prioridade</th>
+                <th style="width:30%;">SKU / Descrição</th>
 
-    </tr>
+                <th style="width:15%;">Apanha</th>
 
-    </thead>
+                <th style="width:30%;">Pulmões</th>
 
-    <tbody>
-    `;
+                <th style="width:10%;">Falta</th>
 
-    let ruaAtual = "";
+                <th style="width:15%;">Prioridade</th>
 
-    dadosImpressao.forEach(item=>{
+            </tr>
 
-        const rua =
-        item.endereco.split(".")[0];
+        </thead>
 
-        if(rua !== ruaAtual){
-
-            ruaAtual = rua;
-
-           html += `
-
-<tr>
-
-    <td colspan="5"
-
-        style="
-            background:#1d4ed8;
-            color:white;
-            font-size:22px;
-            font-weight:bold;
-            padding:14px;
-            text-align:left;
-            letter-spacing:1px;
-        ">
-
-        🚚 ABASTECIMENTO • RUA ${rua}
-
-    </td>
-
-</tr>
-
+        <tbody>
 `;
 
-        }
+let ruaAtual = "";
 
-     let classe = "normal";
+dadosImpressao.forEach(item=>{
 
-if(item.prioridade === "🔴 CRÍTICO"){
+    const rua =
+    item.endereco.split(".")[0];
 
-    classe = "critico";
+    if(rua !== ruaAtual){
 
-}
-else if(item.prioridade === "🟠 ALTA"){
-
-    classe = "alta";
-
-}
-        const pulmoes =
-        item.pulmao
-        .replaceAll(" | ","<br>");
+        ruaAtual = rua;
 
         html += `
 
-        <tr class="${classe}">
+        <tr>
 
-          <td>
+            <td
+                colspan="5"
+                class="rua">
 
-<div style="font-size:20px;font-weight:bold;">
-
-${item.sku}
-
-</div>
-
-<div style="margin-top:6px;font-size:12px;line-height:16px;">
-
-${item.descricao}
-
-</div>
-
-</td>
-
-            <td>
-
-                ${item.endereco}
-
-            </td>
-
-            <td>
-
-                ${pulmoes}
-
-            </td>
-
-          <td
-
-style="
-text-align:center;
-font-size:30px;
-font-weight:bold;
-color:#dc2626;
-">
-
-${item.falta}
-
-</td>
-
-            <td style="text-align:center;font-size:16px;">
-
-                ${item.prioridade}
+                🚚 ABASTECIMENTO • RUA ${rua}
 
             </td>
 
@@ -978,33 +1116,110 @@ ${item.falta}
 
         `;
 
-    });
+    }
+
+    let classe = "normal";
+
+    if(item.prioridade==="🔴 CRÍTICO"){
+
+        classe="critico";
+
+    }
+    else if(item.prioridade==="🟠 ALTA"){
+
+        classe="alta";
+
+    }
+
+    const pulmoes =
+
+    item.pulmao
+
+    .replaceAll(" | ","<br>")
+
+    .replace(/\(\+/g,"<br>(+");
 
     html += `
 
-    </tbody>
+    <tr class="${classe}">
 
-    </table>
+        <td>
 
-    </body>
+            <div class="sku">
 
-    </html>
+                ${item.sku}
+
+            </div>
+
+            <div class="descricao">
+
+                ${item.descricao}
+
+            </div>
+
+        </td>
+
+        <td class="apanha">
+
+            ${item.endereco}
+
+        </td>
+
+        <td class="pulmao">
+
+            ${pulmoes}
+
+        </td>
+
+        <td class="falta">
+
+            ${item.falta}
+
+        </td>
+
+        <td class="prioridade">
+
+            ${item.prioridade}
+
+        </td>
+
+    </tr>
 
     `;
 
-    const janela =
-    window.open("","_blank");
+});
 
-    janela.document.write(html);
+html += `
 
-    janela.document.close();
+</tbody>
 
-    janela.focus();
+</table>
 
-    setTimeout(()=>{
+</body>
 
-        janela.print();
+</html>
 
-    },300);
+`;
+
+const janela =
+
+window.open(
+"",
+"_blank"
+);
+
+janela.document.open();
+
+janela.document.write(html);
+
+janela.document.close();
+
+janela.focus();
+
+setTimeout(()=>{
+
+    janela.print();
+
+},500);
 
 }
