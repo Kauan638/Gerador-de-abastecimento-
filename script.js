@@ -667,29 +667,38 @@ function imprimirAbastecimento(){
 
     .filter(item => item.status === "ABASTECER")
 
-    .sort((a,b)=>{
+   .sort((a,b)=>{
 
-        const ruaA =
-        Number(a.endereco.split(".")[0]) || 0;
+    const peso = {
 
-        const ruaB =
-        Number(b.endereco.split(".")[0]) || 0;
+        "🔴 CRÍTICO":3,
+        "🟠 ALTA":2,
+        "🟡 NORMAL":1,
+        "🟢 OK":0
 
-        if(ruaA !== ruaB){
+    };
 
-            return ruaA - ruaB;
+    const ruaA =
+    Number(a.endereco.split(".")[0]);
 
-        }
+    const ruaB =
+    Number(b.endereco.split(".")[0]);
 
-        if(peso[b.prioridade] !== peso[a.prioridade]){
+    if(ruaA !== ruaB){
 
-            return peso[b.prioridade] - peso[a.prioridade];
+        return ruaA - ruaB;
 
-        }
+    }
 
-        return b.falta - a.falta;
+    if(peso[b.prioridade] !== peso[a.prioridade]){
 
-    });
+        return peso[b.prioridade] - peso[a.prioridade];
+
+    }
+
+    return b.falta - a.falta;
+
+});
 
     let html = `
     <html>
@@ -872,21 +881,29 @@ tr{
 
             ruaAtual = rua;
 
-            html += `
+           html += `
 
-            <tr>
+<tr>
 
-                <td
-                    colspan="5"
-                    class="rua">
+    <td colspan="5"
 
-                 🚚 ABASTECIMENTO • RUA ${rua}
+        style="
+            background:#1d4ed8;
+            color:white;
+            font-size:22px;
+            font-weight:bold;
+            padding:14px;
+            text-align:left;
+            letter-spacing:1px;
+        ">
 
-                </td>
+        🚚 ABASTECIMENTO • RUA ${rua}
 
-            </tr>
+    </td>
 
-            `;
+</tr>
+
+`;
 
         }
 
@@ -932,11 +949,18 @@ else if(item.prioridade === "🟠 ALTA"){
 
             </td>
 
-            <td style="text-align:center;font-size:18px;">
+          <td
 
-                <b>${item.falta}</b>
+style="
+text-align:center;
+font-size:30px;
+font-weight:bold;
+color:#dc2626;
+">
 
-            </td>
+${item.falta}
+
+</td>
 
             <td style="text-align:center;font-size:16px;">
 
