@@ -663,6 +663,28 @@ function imprimirAbastecimento(){
 
 const dadosImpressao =
 
+dadosImpressao.sort((a,b)=>{
+
+    const ruaA =
+    Number(
+        a.endereco.split(".")[0]
+    );
+
+    const ruaB =
+    Number(
+        b.endereco.split(".")[0]
+    );
+
+    if(ruaA !== ruaB){
+
+        return ruaA - ruaB;
+
+    }
+
+    return b.falta - a.falta;
+
+});
+    
 resultado
 
 .filter(x => x.status === "ABASTECER")
@@ -783,8 +805,41 @@ ${dadosImpressao.length} SKUs
 </thead>
     `;
 
+let ruaAtual = "";
+    
     dadosImpressao.forEach(item=>{
 
+const rua = item.endereco.split(".")[0];
+
+if(rua !== ruaAtual){
+
+    ruaAtual = rua;
+
+    html += `
+
+    <tr>
+
+        <td colspan="5"
+
+            style="
+                background:#1e40af;
+                color:white;
+                font-size:18px;
+                font-weight:bold;
+                text-align:left;
+                padding:12px;
+            ">
+
+            📍 RUA ${rua}
+
+        </td>
+
+    </tr>
+
+    `;
+
+}
+        
     let classe = "normal";
 
     if(item.prioridade === "🔴 CRÍTICO"){
