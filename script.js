@@ -927,15 +927,21 @@ else if(item.prioridade === "🟠 ALTA"){
 
         <tr class="${classe}">
 
-            <td>
+          <td>
 
-                <b>${item.sku}</b>
+<div style="font-size:20px;font-weight:bold;">
 
-                <br><br>
+${item.sku}
 
-                ${item.descricao}
+</div>
 
-            </td>
+<div style="margin-top:6px;font-size:12px;line-height:16px;">
+
+${item.descricao}
+
+</div>
+
+</td>
 
             <td>
 
