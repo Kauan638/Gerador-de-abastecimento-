@@ -661,12 +661,10 @@ function imprimirAbastecimento(){
     .sort((a,b)=>{
 
         const peso = {
-
             "🔴 CRÍTICO":3,
             "🟠 ALTA":2,
             "🟡 NORMAL":1,
             "🟢 OK":0
-
         };
 
         return peso[b.prioridade] -
@@ -676,7 +674,6 @@ function imprimirAbastecimento(){
 
     let html = `
     <html>
-
     <head>
 
     <title>Abastecimento PCP</title>
@@ -704,44 +701,17 @@ function imprimirAbastecimento(){
         table-layout:fixed;
     }
 
-    th,
-    td{
+    th,td{
         border:1px solid #ccc;
         padding:8px;
         text-align:center;
-        vertical-align:middle;
         font-size:12px;
-
-        writing-mode:horizontal-tb !important;
-        transform:none !important;
-
-        white-space:normal;
-        word-break:break-word;
     }
 
     th{
         background:#2563eb;
         color:white;
-        font-weight:bold;
     }
-
-    th:nth-child(1),
-    td:nth-child(1){ width:8%; }
-
-    th:nth-child(2),
-    td:nth-child(2){ width:28%; }
-
-    th:nth-child(3),
-    td:nth-child(3){ width:15%; }
-
-    th:nth-child(4),
-    td:nth-child(4){ width:30%; }
-
-    th:nth-child(5),
-    td:nth-child(5){ width:8%; }
-
-    th:nth-child(6),
-    td:nth-child(6){ width:11%; }
 
     </style>
 
@@ -754,14 +724,43 @@ function imprimirAbastecimento(){
     <table>
 
     <tr>
-
         <th>SKU</th>
         <th>Descrição</th>
         <th>Apanha</th>
         <th>Pulmão</th>
         <th>Falta</th>
         <th>Prioridade</th>
-
     </tr>
     `;
-```
+
+    dadosImpressao.forEach(item=>{
+
+        html += `
+        <tr>
+            <td>${item.sku}</td>
+            <td>${item.descricao}</td>
+            <td>${item.endereco}</td>
+            <td>${item.pulmao}</td>
+            <td>${item.falta}</td>
+            <td>${item.prioridade}</td>
+        </tr>
+        `;
+
+    });
+
+    html += `
+    </table>
+
+    </body>
+    </html>
+    `;
+
+    const janela = window.open("","_blank");
+
+    janela.document.write(html);
+
+    janela.document.close();
+
+    janela.print();
+
+}
