@@ -758,6 +758,24 @@ function imprimirAbastecimento(){
         table-layout:fixed;
     }
 
+thead{
+
+    display:table-header-group;
+
+}
+
+tfoot{
+
+    display:table-footer-group;
+
+}
+
+tr{
+
+    page-break-inside:avoid;
+
+}
+
     thead{
         display:table-header-group;
     }
