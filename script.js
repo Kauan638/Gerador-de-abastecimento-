@@ -1155,25 +1155,14 @@ const janela = window.open(
 );
 
 janela.document.open();
-
 janela.document.write(html);
-
 janela.document.close();
 
-janela.focus();
+setTimeout(() => {
 
-// Aguarda o HTML carregar antes de imprimir
-janela.onload = () => {
+    janela.focus();
+    janela.print();
 
-    setTimeout(()=>{
-
-        janela.print();
-
-        // Descomente se quiser fechar automaticamente
-        // janela.close();
-
-    },300);
-
-};
+}, 700);
 
 }
