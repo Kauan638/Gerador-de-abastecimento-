@@ -665,7 +665,7 @@ function imprimirAbastecimento(){
 
     resultado
 
-    .filter(item=>item.status==="ABASTECER")
+    .filter(item => item.status === "ABASTECER")
 
     .sort((a,b)=>{
 
@@ -675,31 +675,37 @@ function imprimirAbastecimento(){
         const ruaB =
         Number(b.endereco.split(".")[0]) || 0;
 
-        if(ruaA!==ruaB){
+        if(ruaA !== ruaB){
 
-            return ruaA-ruaB;
+            return ruaA - ruaB;
 
         }
 
         if(
-            peso[b.prioridade]!==peso[a.prioridade]
+            peso[b.prioridade] !==
+            peso[a.prioridade]
         ){
 
-            return peso[b.prioridade]-peso[a.prioridade];
+            return peso[b.prioridade] -
+                   peso[a.prioridade];
 
         }
 
-        return b.falta-a.falta;
+        return b.falta - a.falta;
 
     });
 
     let html = `
 
-<html>
+<!DOCTYPE html>
+
+<html lang="pt-BR">
 
 <head>
 
-<title>Abastecimento PCP</title>
+<meta charset="UTF-8">
+
+<title>Gerador de Abastecimento PCP</title>
 
 <style>
 
@@ -707,7 +713,7 @@ function imprimirAbastecimento(){
 
     size:A4 portrait;
 
-    margin:8mm;
+    margin:10mm;
 
 }
 
@@ -721,35 +727,39 @@ body{
 
     font-family:Arial,Helvetica,sans-serif;
 
+    color:#222;
+
     margin:0;
 
     padding:0;
-
-    color:#222;
 
 }
 
 h1{
 
-    text-align:center;
-
-    font-size:18px;
-
     margin:0;
 
-    margin-bottom:8px;
+    text-align:center;
+
+    color:#1e3a8a;
+
+    font-size:24px;
+
+    margin-bottom:18px;
 
 }
 
-.info{
+.cabecalho{
 
     display:flex;
 
     justify-content:space-between;
 
-    margin-bottom:15px;
+    align-items:flex-start;
 
-    font-size:12px;
+    margin-bottom:18px;
+
+    font-size:13px;
 
 }
 
@@ -787,9 +797,9 @@ th{
 
     color:white;
 
-    border:1px solid #d9d9d9;
+    padding:10px;
 
-    padding:8px;
+    border:1px solid #d9d9d9;
 
     font-size:12px;
 
@@ -815,13 +825,13 @@ td{
 
 .colApanha{
 
-    width:16%;
+    width:15%;
 
 }
 
 .colPulmao{
 
-    width:31%;
+    width:30%;
 
 }
 
@@ -831,9 +841,9 @@ td{
 
 }
 
-.colPrio{
+.colPrioridade{
 
-    width:13%;
+    width:15%;
 
 }
 
@@ -855,13 +865,13 @@ td{
 
 .critico{
 
-    background:#ffe4e4;
+    background:#ffe5e5;
 
 }
 
 .alta{
 
-    background:#fff5d4;
+    background:#fff4cf;
 
 }
 
@@ -873,11 +883,11 @@ td{
 
 .sku{
 
-    font-size:18px;
+    font-size:20px;
 
     font-weight:bold;
 
-    margin-bottom:8px;
+    margin-bottom:6px;
 
 }
 
@@ -905,23 +915,23 @@ td{
 
 .falta{
 
+    text-align:center;
+
     font-size:20px;
 
     font-weight:bold;
 
     color:#dc2626;
 
-    text-align:center;
-
 }
 
 .prioridade{
 
+    text-align:center;
+
     font-size:14px;
 
     font-weight:bold;
-
-    text-align:center;
 
 }
 
@@ -933,22 +943,8 @@ td{
 
     }
 
-    .rua{
-
-        -webkit-print-color-adjust:exact;
-
-        print-color-adjust:exact;
-
-    }
-
-    .critico{
-
-        -webkit-print-color-adjust:exact;
-
-        print-color-adjust:exact;
-
-    }
-
+    .rua,
+    .critico,
     .alta{
 
         -webkit-print-color-adjust:exact;
@@ -971,23 +967,23 @@ td{
 
 </h1>
 
-<div class="info">
+<div class="cabecalho">
 
-<div>
+    <div>
 
-<b>Data:</b>
+        <b>Data:</b>
 
-${new Date().toLocaleString("pt-BR")}
+        ${new Date().toLocaleString("pt-BR")}
 
-</div>
+    </div>
 
-<div>
+    <div>
 
-<b>Total:</b>
+        <b>Total:</b>
 
-${dadosImpressao.length} SKUs
+        ${dadosImpressao.length} SKUs
 
-</div>
+    </div>
 
 </div>
 
@@ -1021,7 +1017,7 @@ Falta
 
 </th>
 
-<th class="colPrio">
+<th class="colPrioridade">
 
 Prioridade
 
@@ -1029,6 +1025,9 @@ Prioridade
 
 </tr>
 
+</thead>
+
+<tbody>
 
 `;
 
@@ -1051,7 +1050,7 @@ dadosImpressao.forEach(item=>{
                 colspan="5"
                 class="rua">
 
-                🚚 ABASTECIMENTO • RUA ${rua}
+                📍 RUA ${rua}
 
             </td>
 
@@ -1063,24 +1062,29 @@ dadosImpressao.forEach(item=>{
 
     let classe = "normal";
 
-    if(item.prioridade==="🔴 CRÍTICO"){
+    if(item.prioridade === "🔴 CRÍTICO"){
 
-        classe="critico";
-
-    }
-    else if(item.prioridade==="🟠 ALTA"){
-
-        classe="alta";
+        classe = "critico";
 
     }
+    else if(item.prioridade === "🟠 ALTA"){
 
-    const pulmoes =
+        classe = "alta";
 
-    item.pulmao
+    }
 
-    .replaceAll(" | ","<br>")
+    let pulmoes =
+    item.pulmao;
 
-    .replace(/\(\+/g,"<br>(+");
+    pulmoes =
+
+    pulmoes
+
+    .replace(/\s*\|\s*/g,"<br>• ")
+
+    .replace(/^/,"• ")
+
+    .replace("<br>• (+","<br><b>(+");
 
     html += `
 
@@ -1144,11 +1148,10 @@ html += `
 
 `;
 
-const janela =
-
-window.open(
-"",
-"_blank"
+const janela = window.open(
+    "",
+    "_blank",
+    "width=1200,height=900"
 );
 
 janela.document.open();
@@ -1159,10 +1162,18 @@ janela.document.close();
 
 janela.focus();
 
-setTimeout(()=>{
+// Aguarda o HTML carregar antes de imprimir
+janela.onload = () => {
 
-    janela.print();
+    setTimeout(()=>{
 
-},500);
+        janela.print();
+
+        // Descomente se quiser fechar automaticamente
+        // janela.close();
+
+    },300);
+
+};
 
 }
