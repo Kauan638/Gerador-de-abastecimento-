@@ -713,7 +713,7 @@ function imprimirAbastecimento(){
 
     size:A4 portrait;
 
-    margin:10mm;
+    margin:8mm;
 
 }
 
@@ -731,7 +731,7 @@ body{
 
     margin:0;
 
-    padding:0;
+    padding:8mm;
 
 }
 
@@ -775,17 +775,6 @@ table{
 
 }
 
-thead{
-
-    display:table-header-group;
-
-}
-
-tbody{
-
-    display:table-row-group;
-
-}
 
 tr{
 
