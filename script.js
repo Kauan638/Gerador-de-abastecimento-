@@ -652,25 +652,32 @@ function aplicarFiltros(){
 
 function imprimirAbastecimento(){
 
-    const dadosImpressao =
+    const peso = {
 
-    resultado
+    "🔴 CRÍTICO":3,
+    "🟠 ALTA":2,
+    "🟡 NORMAL":1,
+    "🟢 OK":0
 
-    .filter(x => x.status === "ABASTECER")
+};
 
-    .sort((a,b)=>{
+const dadosImpressao =
 
-        const peso = {
-            "🔴 CRÍTICO":3,
-            "🟠 ALTA":2,
-            "🟡 NORMAL":1,
-            "🟢 OK":0
-        };
+resultado
 
-        return peso[b.prioridade] -
-               peso[a.prioridade];
+.filter(x => x.status === "ABASTECER")
 
-    });
+.sort((a,b)=>{
+
+    if(peso[b.prioridade] !== peso[a.prioridade]){
+
+        return peso[b.prioridade] - peso[a.prioridade];
+
+    }
+
+    return b.falta - a.falta;
+
+});
 
     let html = `
     <html>
@@ -695,23 +702,45 @@ function imprimirAbastecimento(){
         margin-bottom:20px;
     }
 
-    table{
-        width:100%;
-        border-collapse:collapse;
-        table-layout:fixed;
-    }
+   table{
 
-    th,td{
-        border:1px solid #ccc;
-        padding:8px;
-        text-align:center;
-        font-size:12px;
-    }
+    width:100%;
 
-    th{
-        background:#2563eb;
-        color:white;
-    }
+    border-collapse:collapse;
+
+    table-layout:fixed;
+
+}
+
+th{
+
+    background:#2563eb;
+
+    color:white;
+
+    font-size:13px;
+
+    padding:10px;
+
+}
+
+td{
+
+    border:1px solid #ddd;
+
+    padding:8px;
+
+    font-size:12px;
+
+    vertical-align:top;
+
+}
+
+tr{
+
+    page-break-inside:avoid;
+
+}
 
     </style>
 
@@ -719,9 +748,21 @@ function imprimirAbastecimento(){
 
     <body>
 
-    <h2>🚚 Abastecimento PCP</h2>
+    <h2>🚚 GERADOR DE ABASTECIMENTO PCP</h2>
 
-    <table>
+<p>
+
+<b>Data:</b>
+${new Date().toLocaleString("pt-BR")}
+
+<br>
+
+<b>Total para abastecer:</b>
+${dadosImpressao.length} SKUs
+
+</p>
+
+    <table class="tabela-impressao">
 
     <tr>
         <th>SKU</th>
