@@ -722,13 +722,15 @@ function imprimirAbastecimento(){
 
 .critico{
 
-    background:#ffe5e5;
+    background:#ffd6d6;
+
+    font-weight:bold;
 
 }
 
 .alta{
 
-    background:#fff5cc;
+    background:#fff2b3;
 
 }
 
@@ -740,15 +742,19 @@ function imprimirAbastecimento(){
 
 .rua{
 
-    background:#1e40af;
+    background:#1e3a8a;
 
     color:white;
 
-    font-size:16px;
+    font-size:18px;
 
     font-weight:bold;
 
     text-align:left;
+
+    padding:12px;
+
+    letter-spacing:1px;
 
 }
 
@@ -874,7 +880,7 @@ tr{
                     colspan="5"
                     class="rua">
 
-                    📍 RUA ${rua}
+                 🚚 ABASTECIMENTO • RUA ${rua}
 
                 </td>
 
