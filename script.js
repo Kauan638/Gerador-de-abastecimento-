@@ -1287,7 +1287,6 @@ let sugestoesMovimentacao = [];
 
 function gerarSugestoesMovimentacao(){
 
-    alert("Entrou na função");
     sugestoesMovimentacao = [];
 
     resultado.forEach(item=>{
@@ -1296,72 +1295,67 @@ function gerarSugestoesMovimentacao(){
             return;
         }
 
-        const existeMesmoCorredor =
-
-            item.pulmoes.some(p=>{
-
-                return p.rua === item.ruaApanha;
-
-            });
-
-        if(existeMesmoCorredor){
+        // Se já existe pulmão na mesma rua, ignora
+        if(item.pulmoes.some(p => p.rua === item.ruaApanha)){
             return;
         }
 
-        let melhorPulmao = item.pulmoes[0];
+        // Pega o pulmão mais distante
+        let piorPulmao = item.pulmoes[0];
 
         item.pulmoes.forEach(p=>{
 
             if(
-
-                Math.abs(
-                    p.rua-item.ruaApanha
-                )
-
-                <
-
-                Math.abs(
-                    melhorPulmao.rua-item.ruaApanha
-                )
-
+                Math.abs(p.rua-item.ruaApanha) >
+                Math.abs(piorPulmao.rua-item.ruaApanha)
             ){
 
-                melhorPulmao = p;
+                piorPulmao = p;
 
             }
 
         });
 
-        const economia =
-
-        Math.abs(
-
-            melhorPulmao.rua -
-
+        const economia = Math.abs(
+            piorPulmao.rua -
             item.ruaApanha
-
         );
 
-        let prioridade="🟢";
+        const destinoLivre = buscarPulmaoLivre(item.ruaApanha);
 
-        if(economia>=20){
+        sugestoesMovimentacao.push({
 
-            prioridade="🔴";
+            sku:item.sku,
 
-        }
+            descricao:item.descricao,
 
-        else if(economia>=10){
+            ruaApanha:item.ruaApanha,
 
-            prioridade="🟠";
+            enderecoAtual:piorPulmao.endereco,
 
-        }
+            moverPara: destinoLivre
+                ? `${destinoLivre.CODRUA}.${destinoLivre.NROPREDIO}.${destinoLivre.NROAPARTAMENTO}.${destinoLivre.NROSALA}`
+                : "Não encontrado",
 
-        else if(economia>=5){
+            economia
 
-            prioridade="🟡";
+        });
 
-        }
+    });
 
+    sugestoesMovimentacao.sort((a,b)=>b.economia-a.economia);
+
+    if(!sugestoesMovimentacao.length){
+
+        alert("Nenhuma sugestão encontrada.");
+
+        return;
+
+    }
+
+    imprimirSugestoes();
+
+}
 // =====================================
 // PROCURA UM PULMÃO LIVRE
 // =====================================
@@ -1421,78 +1415,6 @@ if(destinoLivre){
     });
 
     renderizarSugestoes();
-
-}
-
-function renderizarSugestoes(){
-
-    const painel =
-    document.getElementById("painelSugestao");
-
-    painel.style.display="block";
-
-    document.getElementById("movSkus").innerText =
-    resultado.length;
-
-    document.getElementById("movSugestoes").innerText =
-    sugestoesMovimentacao.length;
-
-    document.getElementById("movEconomia").innerText =
-
-    sugestoesMovimentacao.reduce(
-
-        (s,x)=>s+x.economia,
-
-        0
-
-    )+" ruas";
-
-    document.getElementById("movMaior").innerText =
-
-    sugestoesMovimentacao.length
-
-    ?
-
-    sugestoesMovimentacao[0].economia+" ruas"
-
-    :
-
-    "0";
-
-    const tbody =
-    document.getElementById("tbodySugestoes");
-
-    let html="";
-
-    sugestoesMovimentacao.forEach(item=>{
-
-        html+=`
-
-<tr>
-
-<td>${item.prioridade}</td>
-
-<td>${item.sku}</td>
-
-<td>${item.descricao}</td>
-
-<td>${item.ruaApanha}</td>
-
-<td>${item.ruaPulmao}</td>
-
-<td>${item.enderecoAtual}</td>
-
-<td>${item.moverPara}</td>
-
-<td>${item.economia} ruas</td>
-
-</tr>
-
-`;
-
-    });
-
-    tbody.innerHTML=html;
 
 }
 
