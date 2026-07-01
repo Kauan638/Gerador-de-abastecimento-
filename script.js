@@ -431,10 +431,6 @@ mapaPulmoes[
 // TRATAMENTO DOS PULMÕES
 // =====================================
 
-// =====================================
-// TRATAMENTO DOS PULMÕES
-// =====================================
-
 const listaPulmoes = pulmoes.map(p=>{
 
     const endereco =
@@ -1311,14 +1307,21 @@ setTimeout(()=>{
 
 }
 // =====================================
-// BUSCAR MELHOR PULMÃO LIVRE
+// MAPA DE PULMÕES LIVRES (PRÉ-CALCULADO)
 // =====================================
+// Antes: buscarPulmaoLivre() filtrava TODAS as
+// dadosPosicoes a cada chamada. Como ela é chamada
+// dentro de dois forEach aninhados (resultado x
+// pulmoes), isso gerava centenas de milhares/milhões
+// de comparações e travava a tela.
+// Agora: montamos o mapa rua -> [candidatos livres]
+// UMA ÚNICA VEZ, e a busca vira O(1).
 
-function buscarPulmaoLivre(rua){
+function construirMapaPulmoesLivres(dadosPosicoes){
 
-    const candidatos =
+    const mapa = {};
 
-    dadosPosicoes.filter(p=>{
+    dadosPosicoes.forEach(p=>{
 
         const especie =
         String(
@@ -1326,16 +1329,8 @@ function buscarPulmaoLivre(rua){
         )
         .toUpperCase();
 
-        if(
-            !especie.includes("PULM")
-        ){
-            return false;
-        }
-
-        if(
-            Number(p.CODRUA) !== Number(rua)
-        ){
-            return false;
+        if(!especie.includes("PULM")){
+            return;
         }
 
         const quantidade =
@@ -1349,7 +1344,7 @@ function buscarPulmaoLivre(rua){
         )
         .toUpperCase();
 
-        return (
+        const livre =
 
             quantidade===0
 
@@ -1359,29 +1354,49 @@ function buscarPulmaoLivre(rua){
 
             ||
 
-            status.includes("VAZ")
+            status.includes("VAZ");
 
+        if(!livre){
+            return;
+        }
+
+        const rua = Number(p.CODRUA);
+
+        if(!mapa[rua]){
+            mapa[rua] = [];
+        }
+
+        mapa[rua].push(p);
+
+    });
+
+    // ordena cada rua por prédio, uma vez só
+    Object.values(mapa).forEach(lista=>{
+
+        lista.sort((a,b)=>
+            Number(a.NROPREDIO) - Number(b.NROPREDIO)
         );
 
     });
 
-    if(!candidatos.length){
+    return mapa;
+
+}
+
+// =====================================
+// BUSCAR MELHOR PULMÃO LIVRE (O(1) via mapa)
+// =====================================
+
+function buscarPulmaoLivre(rua, mapaPulmoesLivres){
+
+    const candidatos =
+    mapaPulmoesLivres[Number(rua)];
+
+    if(!candidatos || !candidatos.length){
 
         return null;
 
     }
-
-    candidatos.sort((a,b)=>{
-
-        const predioA =
-        Number(a.NROPREDIO);
-
-        const predioB =
-        Number(b.NROPREDIO);
-
-        return predioA-predioB;
-
-    });
 
     return candidatos[0];
 
@@ -1393,7 +1408,7 @@ function buscarPulmaoLivre(rua){
 
 let sugestoesMovimentacao = [];
 
-function gerarSugestoesMovimentacao(){
+async function gerarSugestoesMovimentacao(){
 
     if(!resultado.length){
 
@@ -1405,101 +1420,134 @@ function gerarSugestoesMovimentacao(){
 
     }
 
-    sugestoesMovimentacao = [];
+    mostrarLoading();
 
-    resultado.forEach(item=>{
+    // libera a thread principal por um instante
+    // para o navegador conseguir pintar o spinner
+    // antes de começar o processamento pesado
+    await new Promise(resolve=>setTimeout(resolve,50));
 
-        // sem apanha cadastrada, não dá pra
-        // comparar rua da apanha x rua do pulmão
+    try{
 
-        if(item.status === "SEM APANHA"){
+        sugestoesMovimentacao = [];
 
-            return;
+        const mapaPulmoesLivres =
+        construirMapaPulmoesLivres(
+            dadosPosicoes
+        );
 
-        }
+        resultado.forEach(item=>{
 
-        if(
-            !item.pulmoes ||
-            !item.pulmoes.length
-        ){
+            // sem apanha cadastrada, não dá pra
+            // comparar rua da apanha x rua do pulmão
 
-            return;
-
-        }
-
-        item.pulmoes.forEach(pulmao=>{
-
-            if(pulmao.quantidade <= 0){
-
-                return; // pulmão vazio, nada a mover
-
-            }
-
-            // NÍVEL 1: só interessa quando a rua
-            // do pulmão é DIFERENTE da rua da apanha
-
-            if(pulmao.rua === item.ruaApanha){
+            if(item.status === "SEM APANHA"){
 
                 return;
 
             }
 
-            // NÍVEL 2: procura um pulmão livre
-            // na MESMA rua da apanha, pra indicar
-            // o endereço exato de destino
+            if(
+                !item.pulmoes ||
+                !item.pulmoes.length
+            ){
 
-            const destino =
-            buscarPulmaoLivre(
-                item.ruaApanha
-            );
+                return;
 
-            const enderecoDestino =
-            destino
-            ? `${destino.CODRUA}.${destino.NROPREDIO}.${destino.NROAPARTAMENTO}.${destino.NROSALA}`
-            : null;
+            }
 
-            // NÍVEL 3: economia = nº de ruas
-            // de distância que deixam de ser
-            // percorridas na hora de abastecer
+            item.pulmoes.forEach(pulmao=>{
 
-            const economia =
-            Math.abs(
-                pulmao.rua - item.ruaApanha
-            );
+                if(pulmao.quantidade <= 0){
 
-            sugestoesMovimentacao.push({
+                    return; // pulmão vazio, nada a mover
 
-                sku: item.sku,
+                }
 
-                descricao: item.descricao,
+                // NÍVEL 1: só interessa quando a rua
+                // do pulmão é DIFERENTE da rua da apanha
 
-                ruaApanha: item.ruaApanha,
+                if(pulmao.rua === item.ruaApanha){
 
-                ruaPulmao: pulmao.rua,
+                    return;
 
-                enderecoApanha: item.enderecoApanha,
+                }
 
-                enderecoPulmaoAtual: pulmao.endereco,
+                // NÍVEL 2: procura um pulmão livre
+                // na MESMA rua da apanha (agora via mapa
+                // pré-calculado, sem refiltrar tudo)
 
-                moverPara: enderecoDestino,
+                const destino =
+                buscarPulmaoLivre(
+                    item.ruaApanha,
+                    mapaPulmoesLivres
+                );
 
-                economia,
+                const enderecoDestino =
+                destino
+                ? `${destino.CODRUA}.${destino.NROPREDIO}.${destino.NROAPARTAMENTO}.${destino.NROSALA}`
+                : null;
 
-                quantidade: pulmao.quantidade
+                // NÍVEL 3: economia = nº de ruas
+                // de distância que deixam de ser
+                // percorridas na hora de abastecer
+
+                const economia =
+                Math.abs(
+                    pulmao.rua - item.ruaApanha
+                );
+
+                sugestoesMovimentacao.push({
+
+                    sku: item.sku,
+
+                    descricao: item.descricao,
+
+                    ruaApanha: item.ruaApanha,
+
+                    ruaPulmao: pulmao.rua,
+
+                    enderecoApanha: item.enderecoApanha,
+
+                    enderecoPulmaoAtual: pulmao.endereco,
+
+                    moverPara: enderecoDestino,
+
+                    economia,
+
+                    quantidade: pulmao.quantidade
+
+                });
 
             });
 
         });
 
-    });
+        // NÍVEL 3: maiores economias primeiro
 
-    // NÍVEL 3: maiores economias primeiro
+        sugestoesMovimentacao.sort(
+            (a,b)=>b.economia - a.economia
+        );
 
-    sugestoesMovimentacao.sort(
-        (a,b)=>b.economia - a.economia
-    );
+        abrirModalSugestao();
 
-    abrirModalSugestao();
+    }
+
+    catch(erro){
+
+        console.error(erro);
+
+        alert(
+            "Erro ao gerar sugestões de movimentação."
+        );
+
+    }
+
+    finally{
+
+        ocultarLoading();
+
+    }
 
 }
 
@@ -2028,4 +2076,3 @@ ${item.moverPara || "Sem posição livre"}
     },500);
 
 }
-
