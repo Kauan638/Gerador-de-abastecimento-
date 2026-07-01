@@ -138,7 +138,7 @@ console.log(
 console.log(
     [...new Set(
         dadosPosicoes.map(
-            x=>x.ESTATUS_ENDERECO
+            x=>x.STATUS_ENDERECO
         )
     )]
 );
@@ -453,7 +453,7 @@ const listaPulmoes = pulmoes.map(p=>{
         livre:
 
             String(
-                p.ESTATUS_ENDERECO||""
+                p.STATUS_ENDERECO||""
             )
 
             .toUpperCase()
@@ -1333,28 +1333,19 @@ function construirMapaPulmoesLivres(dadosPosicoes){
             return;
         }
 
-        const quantidade =
-        Number(
-            p.QTD_END || 0
-        );
-
         const status =
         String(
-            p.ESTATUS_ENDERECO || ""
+            p.STATUS_ENDERECO || ""
         )
-        .toUpperCase();
+        .toUpperCase()
+        .trim();
 
+        // Apenas endereços com status "Disponivel" podem
+        // ser usados como destino. "Reservado" já está
+        // comprometido para outra finalidade e não é
+        // uma vaga real, mesmo estando com QTD_END vazio.
         const livre =
-
-            quantidade===0
-
-            ||
-
-            status.includes("LIV")
-
-            ||
-
-            status.includes("VAZ");
+            status === "DISPONIVEL";
 
         if(!livre){
             return;
@@ -1398,7 +1389,14 @@ function buscarPulmaoLivre(rua, mapaPulmoesLivres){
 
     }
 
-    return candidatos[0];
+    // Remove o candidato da lista (splice) em vez de
+    // apenas lê-lo (candidatos[0]). Assim, uma vez que
+    // um endereço é dado como destino para uma linha,
+    // ele deixa de existir no pool e não pode ser
+    // sugerido novamente para outra linha até que a
+    // movimentação real seja executada e a base
+    // recarregada.
+    return candidatos.shift();
 
 }
 
