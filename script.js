@@ -1796,17 +1796,11 @@ function imprimirSugestoes(janela){
 
     }
 
-    dados.sort((a,b)=>{
+    // Ordena só por economia — quem está mais longe
+    // (maior economia ao mover) vem primeiro, sem
+    // agrupar/priorizar por rua.
+    dados.sort((a,b)=> b.economia - a.economia);
 
-        if(a.ruaApanha !== b.ruaApanha){
-
-            return a.ruaApanha - b.ruaApanha;
-
-        }
-
-        return b.economia - a.economia;
-
-    });
 
     let html = `
 <!DOCTYPE html>
@@ -2003,29 +1997,7 @@ ${dados.length}
 
 `;
 
-    let ruaAtual = "";
-
     dados.forEach(item=>{
-
-        if(item.ruaApanha != ruaAtual){
-
-            ruaAtual = item.ruaApanha;
-
-            html += `
-
-<tr>
-
-<td colspan="5" class="rua">
-
-📍 RUA ${String(ruaAtual).padStart(3,"0")}
-
-</td>
-
-</tr>
-
-`;
-
-        }
 
         let classe="";
 
