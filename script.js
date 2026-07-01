@@ -431,64 +431,96 @@ mapaPulmoes[
 const pulmoesExibidos =
 pulmoes.slice(0,3);
 
+// =====================================
+// TRATAMENTO DOS PULMÕES
+// =====================================
+
+const listaPulmoes = pulmoes.map(p => {
+
+    return {
+
+        rua: Number(p.CODRUA),
+
+        endereco:
+        `${p.CODRUA}.${p.NROPREDIO}.${p.NROAPARTAMENTO}.${p.NROSALA}`,
+
+        quantidade:
+        Number(p.QTD_END || 0),
+
+        status:
+        String(
+            p.ESTATUS_ENDERECO || ""
+        ).toUpperCase(),
+
+        objeto:p
+
+    };
+
+});
+
+const pulmoesExibidos =
+listaPulmoes.slice(0,3);
+
 let enderecoPulmao =
 "Sem Pulmão";
 
-if(pulmoes.length > 0){
+if(listaPulmoes.length){
 
     enderecoPulmao =
 
     pulmoesExibidos
 
-    .map(p => {
-
-        return `${p.CODRUA}.${p.NROPREDIO}.${p.NROAPARTAMENTO}.${p.NROSALA}`;
-
-    })
+    .map(p=>p.endereco)
 
     .join(" | ");
 
-    if(pulmoes.length > 3){
+    if(listaPulmoes.length>3){
 
         enderecoPulmao +=
-        ` (+${pulmoes.length - 3} mais)`;
+        ` (+${listaPulmoes.length-3} mais)`;
 
     }
 
 }
 
     
-        resultado.push({
+     resultado.push({
 
-            sku: item.sku,
+    sku:item.sku,
 
-            descricao: item.descricao,
+    descricao:item.descricao,
 
-            pedido: item.pedido,
+    pedido:item.pedido,
 
-            endereco,
+    endereco,
 
-            pulmao: enderecoPulmao,
-            
-            saldo,
+    pulmao:enderecoPulmao,
 
-            norma,
+    pulmoes:listaPulmoes,
 
-            falta,
+    ruaApanha:
+    Number(
+        posicao?.CODRUA || 0
+    ),
 
-            status,
+    saldo,
 
-            prioridade:
-            falta >= norma
-            ? "🔴 CRÍTICO"
-            : falta > (norma * 0.5)
-            ? "🟠 ALTA"
-            : falta > 0
-            ? "🟡 NORMAL"
-            : "🟢 OK"
+    norma,
 
-        });
+    falta,
 
+    status,
+
+    prioridade:
+    falta >= norma
+    ? "🔴 CRÍTICO"
+    : falta > (norma * 0.5)
+    ? "🟠 ALTA"
+    : falta > 0
+    ? "🟡 NORMAL"
+    : "🟢 OK"
+
+});
     });
 
 console.log(
