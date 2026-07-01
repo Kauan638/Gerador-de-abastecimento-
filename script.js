@@ -1434,6 +1434,18 @@ async function gerarSugestoesMovimentacao(){
             dadosPosicoes
         );
 
+        // =====================================
+        // 1) MONTA CANDIDATOS (sem reservar destino)
+        // =====================================
+        // Antes, o destino era reservado na mesma hora
+        // em que o candidato era encontrado — como o loop
+        // segue a ordem do arquivo (rua crescente), os
+        // pulmões mais PRÓXIMOS acabavam consumindo os
+        // endereços livres antes dos mais DISTANTES,
+        // mesmo estes tendo mais economia a ganhar.
+
+        const candidatos = [];
+
         resultado.forEach(item=>{
 
             // sem apanha cadastrada, não dá pra
@@ -1471,57 +1483,77 @@ async function gerarSugestoesMovimentacao(){
 
                 }
 
-                // NÍVEL 2: procura um pulmão livre
-                // na MESMA rua da apanha (agora via mapa
-                // pré-calculado, sem refiltrar tudo)
-
-                const destino =
-                buscarPulmaoLivre(
-                    item.ruaApanha,
-                    mapaPulmoesLivres
-                );
-
-                const enderecoDestino =
-                destino
-                ? `${destino.CODRUA}.${destino.NROPREDIO}.${destino.NROAPARTAMENTO}.${destino.NROSALA}`
-                : null;
-
-                // NÍVEL 3: economia = nº de ruas
-                // de distância que deixam de ser
-                // percorridas na hora de abastecer
-
                 const economia =
                 Math.abs(
                     pulmao.rua - item.ruaApanha
                 );
 
-                sugestoesMovimentacao.push({
-
-                    sku: item.sku,
-
-                    descricao: item.descricao,
-
-                    ruaApanha: item.ruaApanha,
-
-                    ruaPulmao: pulmao.rua,
-
-                    enderecoApanha: item.enderecoApanha,
-
-                    enderecoPulmaoAtual: pulmao.endereco,
-
-                    moverPara: enderecoDestino,
-
-                    economia,
-
-                    quantidade: pulmao.quantidade
-
+                candidatos.push({
+                    item,
+                    pulmao,
+                    economia
                 });
 
             });
 
         });
 
-        // NÍVEL 3: maiores economias primeiro
+        // =====================================
+        // 2) PRIORIZA MAIOR ECONOMIA
+        // =====================================
+        // Reordena os candidatos por economia decrescente
+        // ANTES de reservar qualquer endereço. Assim, quando
+        // há poucas vagas livres numa rua, elas vão para quem
+        // realmente ganha mais com a movimentação (pulmão
+        // mais distante primeiro).
+
+        candidatos.sort(
+            (a,b)=>b.economia - a.economia
+        );
+
+        // =====================================
+        // 3) RESERVA OS DESTINOS NESSA ORDEM
+        // =====================================
+
+        candidatos.forEach(({item,pulmao,economia})=>{
+
+            const destino =
+            buscarPulmaoLivre(
+                item.ruaApanha,
+                mapaPulmoesLivres
+            );
+
+            const enderecoDestino =
+            destino
+            ? `${destino.CODRUA}.${destino.NROPREDIO}.${destino.NROAPARTAMENTO}.${destino.NROSALA}`
+            : null;
+
+            sugestoesMovimentacao.push({
+
+                sku: item.sku,
+
+                descricao: item.descricao,
+
+                ruaApanha: item.ruaApanha,
+
+                ruaPulmao: pulmao.rua,
+
+                enderecoApanha: item.enderecoApanha,
+
+                enderecoPulmaoAtual: pulmao.endereco,
+
+                moverPara: enderecoDestino,
+
+                economia,
+
+                quantidade: pulmao.quantidade
+
+            });
+
+        });
+
+        // ordenação final só para exibição
+        // (a alocação já respeitou a prioridade)
 
         sugestoesMovimentacao.sort(
             (a,b)=>b.economia - a.economia
