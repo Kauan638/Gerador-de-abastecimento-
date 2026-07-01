@@ -1494,3 +1494,223 @@ function renderizarSugestoes(){
     tbody.innerHTML=html;
 
 }
+
+// =====================================
+// IMPRIMIR SUGESTÕES
+// =====================================
+
+function imprimirSugestoes(){
+
+let html = `
+
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Sugestão de Movimentação</title>
+
+<style>
+
+@page{
+
+    size:A4 portrait;
+
+    margin:8mm;
+
+}
+
+*{
+
+    box-sizing:border-box;
+
+}
+
+body{
+
+    font-family:Arial,Helvetica,sans-serif;
+
+    margin:0;
+
+    color:#222;
+
+}
+
+h1{
+
+    margin:0;
+
+    text-align:center;
+
+    color:#0F4C81;
+
+    font-size:22px;
+
+}
+
+.sub{
+
+    margin-top:5px;
+
+    margin-bottom:20px;
+
+    text-align:center;
+
+    color:#666;
+
+    font-size:13px;
+
+}
+
+.info{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-bottom:15px;
+
+    font-size:13px;
+
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+th{
+
+    background:#0F4C81;
+
+    color:white;
+
+    padding:10px;
+
+    font-size:12px;
+
+}
+
+td{
+
+    padding:8px;
+
+    border:1px solid #DDD;
+
+    font-size:11px;
+
+}
+
+.rua{
+
+    background:#1E3A8A;
+
+    color:white;
+
+    font-size:16px;
+
+    font-weight:bold;
+
+    padding:10px;
+
+}
+
+.vermelho{
+
+    background:#ffe5e5;
+
+}
+
+.laranja{
+
+    background:#fff2d6;
+
+}
+
+.amarelo{
+
+    background:#fffce5;
+
+}
+
+@media print{
+
+.rua,
+th,
+.vermelho,
+.laranja,
+.amarelo{
+
+-webkit-print-color-adjust:exact;
+print-color-adjust:exact;
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>
+
+📦 SUGESTÃO DE MOVIMENTAÇÃO
+
+</h1>
+
+<div class="sub">
+
+Pulmões sugeridos automaticamente
+
+</div>
+
+<div class="info">
+
+<div>
+
+<b>Data:</b>
+
+${new Date().toLocaleString("pt-BR")}
+
+</div>
+
+<div>
+
+<b>Total:</b>
+
+${sugestoesMovimentacao.length}
+
+</div>
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>SKU</th>
+
+<th>Produto</th>
+
+<th>Atual</th>
+
+<th>Novo</th>
+
+<th>Economia</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+`;
