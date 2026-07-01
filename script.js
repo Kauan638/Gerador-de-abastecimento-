@@ -1183,7 +1183,15 @@ html += `
 
 `;
 
-const janela = window.open("", "_blank");
+const janela = window.open();
+
+janela.document.write(html);
+
+janela.document.close();
+
+janela.focus();
+
+janela.print();
 
 if(!janela){
 
