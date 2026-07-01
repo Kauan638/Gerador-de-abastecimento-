@@ -1740,11 +1740,18 @@ function imprimirSugestoesModal(){
 // =====================================
 function imprimirSugestoes(janela){
 
-    const dados = [...sugestoesMovimentacao];
+    // Na impressão, mostramos apenas sugestões que
+    // realmente têm um pulmão livre para mover. Itens
+    // sem posição livre continuam visíveis no modal em
+    // tela, só não entram na versão impressa.
+    const dados =
+    sugestoesMovimentacao.filter(
+        item => item.moverPara
+    );
 
     if(!dados.length){
 
-        alert("Nenhuma sugestão encontrada.");
+        alert("Nenhuma sugestão com posição livre para imprimir.");
 
         return;
 
