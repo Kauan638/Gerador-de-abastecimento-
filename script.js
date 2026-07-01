@@ -810,6 +810,13 @@ function imprimirAbastecimento(){
 
     .filter(item => item.status === "ABASTECER")
 
+    // Só entram na impressão itens que têm pelo menos
+    // um endereço de pulmão cadastrado. Itens "Sem Pulmão"
+    // continuam existindo no resultado/tela normal, só não
+    // aparecem nesta lista impressa, já que não há de onde
+    // buscar o produto para abastecer a apanha.
+    .filter(item => item.pulmao !== "Sem Pulmão")
+
     .sort((a,b)=>{
 
         const ruaA =
