@@ -647,6 +647,42 @@ window.addEventListener("load",()=>{
         aplicarFiltros
     );
 
+    document
+    .getElementById("filtroMovSKU")
+    .addEventListener(
+        "input",
+        aplicarFiltrosSugestao
+    );
+
+    document
+    .getElementById("filtroMovRua")
+    .addEventListener(
+        "input",
+        aplicarFiltrosSugestao
+    );
+
+    document
+    .getElementById("modalSugestao")
+    .addEventListener("click", function(e){
+
+        if(e.target === this){
+
+            fecharModalSugestao();
+
+        }
+
+    });
+
+    document.addEventListener("keydown", function(e){
+
+        if(e.key === "Escape"){
+
+            fecharModalSugestao();
+
+        }
+
+    });
+
 });
 
 function obterResultadoFiltrado(){
@@ -1359,11 +1395,11 @@ let sugestoesMovimentacao = [];
 
 function gerarSugestoesMovimentacao(){
 
-    const janela = window.open("", "_blank");
+    if(!resultado.length){
 
-    if(!janela){
-
-        alert("Permita pop-ups para este site.");
+        alert(
+            "Processe os arquivos primeiro."
+        );
 
         return;
 
@@ -1373,63 +1409,68 @@ function gerarSugestoesMovimentacao(){
 
     resultado.forEach(item=>{
 
-        // só vale a pena sugerir movimentação
-        // quando o SKU tem mais de um pulmão
-        // (posições espalhadas = candidatas a consolidação)
+        // só interessa quem realmente precisa
+        // ser abastecido na apanha
+
+        if(item.status !== "ABASTECER"){
+
+            return;
+
+        }
 
         if(
             !item.pulmoes ||
-            item.pulmoes.length < 2
+            !item.pulmoes.length
         ){
 
             return;
 
         }
 
-        // pega o pulmão ocupado com MENOR quantidade:
-        // é o mais fácil/vantajoso de esvaziar
+        // pega o pulmão com MAIOR quantidade
+        // disponível: é o melhor candidato
+        // pra puxar estoque pra apanha
 
-        const pulmoesOcupados =
+        const pulmoesComEstoque =
 
         item.pulmoes
 
-        .filter(p =>
-            p.quantidade > 0 &&
-            !p.livre
-        )
+        .filter(p => p.quantidade > 0)
 
         .sort(
-            (a,b)=>a.quantidade - b.quantidade
+            (a,b)=>b.quantidade - a.quantidade
         );
 
-        if(!pulmoesOcupados.length){
+        if(!pulmoesComEstoque.length){
 
             return;
 
         }
 
-        const origem = pulmoesOcupados[0];
+        const origem = pulmoesComEstoque[0];
 
-        // procura um pulmão livre na mesma rua da apanha
-        // para onde a mercadoria possa ser consolidada
-
-        const destino =
-        buscarPulmaoLivre(
-            item.ruaApanha
+        const quantidadeMover =
+        Math.min(
+            item.falta,
+            origem.quantidade
         );
 
-        if(!destino){
+        if(quantidadeMover <= 0){
 
             return;
 
         }
 
-        const enderecoDestino =
-        `${destino.CODRUA}.${destino.NROPREDIO}.${destino.NROAPARTAMENTO}.${destino.NROSALA}`;
+        let prioridade = "baixa";
 
-        if(enderecoDestino === origem.endereco){
+        if(item.prioridade === "🔴 CRÍTICO"){
 
-            return;
+            prioridade = "alta";
+
+        }
+        else if(item.prioridade === "🟠 ALTA"){
+
+            prioridade = "media";
 
         }
 
@@ -1443,17 +1484,203 @@ function gerarSugestoesMovimentacao(){
 
             enderecoAtual: origem.endereco,
 
-            moverPara: enderecoDestino,
+            moverPara: item.enderecoApanha,
 
-            economia: origem.quantidade
+            economia: quantidadeMover,
+
+            prioridade
 
         });
 
     });
 
+    sugestoesMovimentacao.sort((a,b)=>{
+
+        if(a.ruaApanha !== b.ruaApanha){
+
+            return a.ruaApanha - b.ruaApanha;
+
+        }
+
+        return b.economia - a.economia;
+
+    });
+
+    abrirModalSugestao();
+
+}
+
+// =====================================
+// MODAL DE SUGESTÃO
+// =====================================
+
+function abrirModalSugestao(){
+
+    const modal =
+    document.getElementById("modalSugestao");
+
+    if(!modal){
+
+        alert(
+            "Modal de sugestão não encontrado no HTML."
+        );
+
+        return;
+
+    }
+
+    document.getElementById("filtroMovSKU").value = "";
+
+    document.getElementById("filtroMovRua").value = "";
+
+    atualizarKPIsSugestao();
+
+    renderizarTabelaSugestoes(
+        sugestoesMovimentacao
+    );
+
+    modal.classList.add("ativo");
+
+}
+
+function fecharModalSugestao(){
+
+    document
+    .getElementById("modalSugestao")
+    .classList.remove("ativo");
+
+}
+
+function atualizarKPIsSugestao(){
+
+    document.getElementById("movTotal").innerText =
+    sugestoesMovimentacao.length;
+
+    document.getElementById("movAlta").innerText =
+    sugestoesMovimentacao.filter(
+        x=>x.prioridade==="alta"
+    ).length;
+
+    document.getElementById("movMedia").innerText =
+    sugestoesMovimentacao.filter(
+        x=>x.prioridade==="media"
+    ).length;
+
+    document.getElementById("movUnidades").innerText =
+    sugestoesMovimentacao.reduce(
+        (s,x)=>s+x.economia,
+        0
+    );
+
+}
+
+function renderizarTabelaSugestoes(dados){
+
+    const tbody =
+    document.getElementById("tbodySugestoes");
+
+    if(!dados.length){
+
+        tbody.innerHTML =
+        `<tr><td colspan="6" style="text-align:center;padding:30px;color:#6b7280;">
+        Nenhuma sugestão encontrada. Ou não há itens em ABASTECER, ou os pulmões dessas SKUs estão sem estoque.
+        </td></tr>`;
+
+        return;
+
+    }
+
+    let html = "";
+
+    dados.forEach(item=>{
+
+        const classe =
+
+        item.prioridade === "alta"
+        ? "prioridade-alta"
+        : item.prioridade === "media"
+        ? "prioridade-media"
+        : "prioridade-baixa";
+
+        html += `
+        <tr>
+            <td>${item.sku}</td>
+            <td style="text-align:left;">${item.descricao}</td>
+            <td>${String(item.ruaApanha).padStart(3,"0")}</td>
+            <td>${item.enderecoAtual}</td>
+            <td>${item.moverPara}</td>
+            <td class="${classe}">${item.economia}</td>
+        </tr>
+        `;
+
+    });
+
+    tbody.innerHTML = html;
+
+}
+
+function aplicarFiltrosSugestao(){
+
+    const skuFiltro =
+    document
+    .getElementById("filtroMovSKU")
+    .value
+    .toLowerCase()
+    .trim();
+
+    const ruaFiltro =
+    document
+    .getElementById("filtroMovRua")
+    .value
+    .toLowerCase()
+    .trim();
+
+    const filtrado =
+    sugestoesMovimentacao.filter(item=>{
+
+        const skuOk =
+        item.sku
+        .toString()
+        .toLowerCase()
+        .includes(skuFiltro);
+
+        const ruaOk =
+        String(item.ruaApanha)
+        .toLowerCase()
+        .includes(ruaFiltro);
+
+        return skuOk && ruaOk;
+
+    });
+
+    renderizarTabelaSugestoes(filtrado);
+
+}
+
+function imprimirSugestoesModal(){
+
+    if(!sugestoesMovimentacao.length){
+
+        alert("Nenhuma sugestão para imprimir.");
+
+        return;
+
+    }
+
+    const janela = window.open("", "_blank");
+
+    if(!janela){
+
+        alert("Permita pop-ups para este site.");
+
+        return;
+
+    }
+
     imprimirSugestoes(janela);
 
 }
+
 // =====================================
 // IMPRIMIR SUGESTÕES
 // =====================================

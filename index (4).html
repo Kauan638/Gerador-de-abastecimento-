@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Gerador de Abastecimento PCP
+    </title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- XLSX -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- Papa Parse -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>
+            🚚 Gerador de Abastecimento PCP
+        </h1>
+
+        <!-- ===================================== -->
+        <!-- UPLOADS -->
+        <!-- ===================================== -->
+
+        <div class="card">
+
+            <h2>
+                Arquivos
+            </h2>
+
+            <div class="upload-area">
+
+                <!-- PEDIDOS -->
+
+                <div class="upload-box">
+
+                    <label>
+                        📊 Metabase Pedidos
+                    </label>
+
+                    <label
+                        class="upload-btn"
+                        for="arquivoPedidos">
+
+                        Selecionar Arquivo
+
+                    </label>
+
+                    <input
+                        type="file"
+                        id="arquivoPedidos"
+                        accept=".xlsx,.xls">
+
+                    <div
+                        class="upload-nome"
+                        id="nomePedidos">
+
+                        Nenhum arquivo selecionado
+
+                    </div>
+
+                </div>
+
+                <!-- POSIÇÕES -->
+
+                <div class="upload-box">
+
+                    <label>
+                        📦 Posição de Endereços
+                    </label>
+
+                    <label
+                        class="upload-btn"
+                        for="arquivoPosicoes">
+
+                        Selecionar Arquivo
+
+                    </label>
+
+                    <input
+                        type="file"
+                        id="arquivoPosicoes"
+                        accept=".txt,.csv">
+
+                    <div
+                        class="upload-nome"
+                        id="nomePosicoes">
+
+                        Nenhum arquivo selecionado
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <br>
+
+       <div class="acoes">
+
+    <button
+        class="btn-processar"
+        onclick="processar()">
+
+        🚀 Processar Dados
+
+    </button>
+
+    <button
+        class="btn-exportar"
+        onclick="gerarSugestoesMovimentacao()">
+
+        📦 Sugestão de Movimentação
+
+    </button>
+
+</div>
+
+        </div>
+
+        <!-- ===================================== -->
+        <!-- KPIs -->
+        <!-- ===================================== -->
+
+        <div class="kpis">
+
+            <div class="kpi-card">
+
+                <h3>
+                    Total SKUs
+                </h3>
+
+                <span id="kpiSkus">
+                    0
+                </span>
+
+            </div>
+
+            <div class="kpi-card">
+
+                <h3>
+                    Abastecer
+                </h3>
+
+                <span id="kpiAbastecer">
+                    0
+                </span>
+
+            </div>
+
+            <div class="kpi-card">
+
+                <h3>
+                    Unidades
+                </h3>
+
+                <span id="kpiUnidades">
+                    0
+                </span>
+
+            </div>
+
+            <div class="kpi-card">
+
+                <h3>
+                    Sem Apanha
+                </h3>
+
+                <span id="kpiSemApanha">
+                    0
+                </span>
+
+            </div>
+
+        </div>
+
+        <!-- ===================================== -->
+        <!-- FILTROS -->
+        <!-- ===================================== -->
+
+        <div class="card">
+
+            <h2>
+                Filtros
+            </h2>
+
+            <div class="filtros">
+
+                <input
+                    type="text"
+                    id="filtroSKU"
+                    placeholder="Filtrar SKU">
+
+                <select id="filtroStatus">
+
+                    <option value="">
+                        Todos Status
+                    </option>
+
+                    <option value="ABASTECER">
+                        ABASTECER
+                    </option>
+
+                    <option value="OK">
+                        OK
+                    </option>
+
+                    <option value="SEM APANHA">
+                        SEM APANHA
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+        <!-- ===================================== -->
+        <!-- RESULTADO -->
+        <!-- ===================================== -->
+
+        <div class="card">
+
+            <h2>
+                Resultado
+            </h2>
+
+           <div class="acoes">
+
+    <button
+        class="btn-exportar"
+        onclick="exportarExcel()">
+
+        📥 Exportar Excel
+
+    </button>
+
+    <button
+        class="btn-exportar"
+        onclick="imprimirAbastecimento()">
+
+        🖨️ Imprimir Críticos
+
+    </button>
+
+</div>
+
+            <div class="tabela-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>SKU</th>
+
+                            <th>Descrição</th>
+
+                            <th>Pedido</th>
+
+                            <th>Endereço</th>
+
+                            <th>Pulmão</th>
+                            
+                            <th>Saldo Atual</th>
+
+                            <th>Norma</th>
+
+                            <th>Falta</th>
+
+                            <th>Status</th>
+                            
+                            <th>Prioridade</th>
+                            
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="tbodyResultados">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ===================================== -->
+<!-- LOADING -->
+<!-- ===================================== -->
+
+<div
+    class="loading"
+    id="loading">
+
+    <div class="spinner"></div>
+
+    <p>
+        Processando arquivos...
+    </p>
+
+</div>
+
+<!-- ===================================== -->
+<!-- MODAL SUGESTÃO DE MOVIMENTAÇÃO -->
+<!-- ===================================== -->
+
+<div
+    class="modal-sugestao"
+    id="modalSugestao">
+
+    <div class="modal-conteudo">
+
+        <div class="modal-topo">
+
+            <h2>
+                📦 Sugestão de Movimentação
+            </h2>
+
+            <button
+                class="btn-fechar"
+                onclick="fecharModalSugestao()">
+
+                Fechar ✕
+
+            </button>
+
+        </div>
+
+        <div class="modal-corpo">
+
+            <div class="cards-mov">
+
+                <div class="card-mov">
+                    <h3>Total Sugestões</h3>
+                    <span id="movTotal">0</span>
+                </div>
+
+                <div class="card-mov">
+                    <h3>Prioridade Alta</h3>
+                    <span id="movAlta">0</span>
+                </div>
+
+                <div class="card-mov">
+                    <h3>Prioridade Média</h3>
+                    <span id="movMedia">0</span>
+                </div>
+
+                <div class="card-mov">
+                    <h3>Unidades a Mover</h3>
+                    <span id="movUnidades">0</span>
+                </div>
+
+            </div>
+
+            <div class="filtros-mov">
+
+                <input
+                    type="text"
+                    id="filtroMovSKU"
+                    placeholder="Filtrar SKU">
+
+                <input
+                    type="text"
+                    id="filtroMovRua"
+                    placeholder="Filtrar Rua">
+
+                <button
+                    class="btn-exportar"
+                    onclick="imprimirSugestoesModal()">
+
+                    🖨️ Imprimir
+
+                </button>
+
+            </div>
+
+            <div class="tabela-container">
+
+                <table class="tabela-mov">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>SKU</th>
+                            <th>Produto</th>
+                            <th>Rua</th>
+                            <th>Pulmão (origem)</th>
+                            <th>Apanha (destino)</th>
+                            <th>Qtd a Mover</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="tbodySugestoes">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+
+</html>
+
