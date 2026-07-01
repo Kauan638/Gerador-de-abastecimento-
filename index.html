@@ -303,149 +303,28 @@
     </div>
 
     <!-- ===================================== -->
-    <!-- LOADING -->
-    <!-- ===================================== -->
+<!-- LOADING -->
+<!-- ===================================== -->
 
-    <div
-        class="loading"
-        id="loading">
+<div
+    class="loading"
+    id="loading">
 
-        <div class="spinner"></div>
+    <div class="spinner"></div>
 
-        <p>
-            Processando arquivos...
-        </p>
+    <p>
+        Processando arquivos...
+    </p>
 
-    </div>
+</div>
 
-    <script src="script.js"></script>
+<script src="script.js"></script>
 
 </body>
 
 </html>
 
-
-<!-- ===================================== -->
-<!-- SUGESTÃO DE MOVIMENTAÇÃO -->
-<!-- ===================================== -->
-
-<div
-    class="card"
-    id="painelSugestao"
-    style="display:none;">
-
-    <h2>
-        📦 Sugestão Inteligente de Movimentação
-    </h2>
-
-    <div class="kpis">
-
-        <div class="kpi-card">
-
-            <h3>SKUs analisados</h3>
-
-            <span id="movSkus">0</span>
-
-        </div>
-
-        <div class="kpi-card">
-
-            <h3>Sugestões</h3>
-
-            <span id="movSugestoes">0</span>
-
-        </div>
-
-        <div class="kpi-card">
-
-            <h3>Economia Total</h3>
-
-            <span id="movEconomia">0</span>
-
-        </div>
-
-        <div class="kpi-card">
-
-            <h3>Maior Economia</h3>
-
-            <span id="movMaior">0</span>
-
-        </div>
+ </div>
 
     </div>
 
-    <br>
-
-    <div class="filtros">
-
-        <input
-            type="text"
-            id="filtroMovSKU"
-            placeholder="Filtrar SKU">
-
-        <input
-            type="number"
-            id="filtroEconomia"
-            placeholder="Economia mínima">
-
-    </div>
-
-    <br>
-
-    <div class="acoes">
-
-        <button
-            class="btn-exportar"
-            onclick="exportarSugestoes()">
-
-            📥 Exportar Sugestões
-
-        </button>
-
-        <button
-            class="btn-exportar"
-            onclick="imprimirSugestoes()">
-
-            🖨️ Imprimir Sugestões
-
-        </button>
-
-    </div>
-
-    <div class="tabela-container">
-
-        <table>
-
-            <thead>
-
-                <tr>
-
-                    <th>Prioridade</th>
-
-                    <th>SKU</th>
-
-                    <th>Produto</th>
-
-                    <th>Rua Apanha</th>
-
-                    <th>Rua Pulmão</th>
-
-                    <th>Endereço Atual</th>
-
-                    <th>Mover Para</th>
-
-                    <th>Economia</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody id="tbodySugestoes">
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</div>
