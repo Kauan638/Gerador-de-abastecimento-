@@ -1292,80 +1292,27 @@ let sugestoesMovimentacao = [];
 
 function gerarSugestoesMovimentacao(){
 
-    sugestoesMovimentacao = [];
+    const janela = window.open("", "_blank");
 
-    resultado.forEach(item=>{
+    if(!janela){
 
-        if(!item.pulmoes.length){
-            return;
-        }
-
-        // Se já existe pulmão na mesma rua, ignora
-        if(item.pulmoes.some(p => p.rua === item.ruaApanha)){
-            return;
-        }
-
-        // Pega o pulmão mais distante
-        let piorPulmao = item.pulmoes[0];
-
-        item.pulmoes.forEach(p=>{
-
-            if(
-                Math.abs(p.rua-item.ruaApanha) >
-                Math.abs(piorPulmao.rua-item.ruaApanha)
-            ){
-
-                piorPulmao = p;
-
-            }
-
-        });
-
-        const economia = Math.abs(
-            piorPulmao.rua -
-            item.ruaApanha
-        );
-
-        const destinoLivre = buscarPulmaoLivre(item.ruaApanha);
-
-        sugestoesMovimentacao.push({
-
-            sku:item.sku,
-
-            descricao:item.descricao,
-
-            ruaApanha:item.ruaApanha,
-
-            enderecoAtual:piorPulmao.endereco,
-
-            moverPara: destinoLivre
-                ? `${destinoLivre.CODRUA}.${destinoLivre.NROPREDIO}.${destinoLivre.NROAPARTAMENTO}.${destinoLivre.NROSALA}`
-                : "Não encontrado",
-
-            economia
-
-        });
-
-    });
-
-    sugestoesMovimentacao.sort((a,b)=>b.economia-a.economia);
-
-    if(!sugestoesMovimentacao.length){
-
-        alert("Nenhuma sugestão encontrada.");
+        alert("Permita pop-ups para este site.");
 
         return;
 
     }
 
-    imprimirSugestoes();
+    sugestoesMovimentacao = [];
+
+    // resto da função...
+
+    imprimirSugestoes(janela);
 
 }
-
 // =====================================
 // IMPRIMIR SUGESTÕES
 // =====================================
-function imprimirSugestoes(){
+function imprimirSugestoes(janela){
 
     const dados = [...sugestoesMovimentacao];
 
@@ -1676,17 +1623,7 @@ ${item.moverPara}
 
 `;
 
-   const janela = window.open("", "_blank");
 
-console.log("Janela:", janela);
-
-if(!janela){
-
-    alert("Popup bloqueado.");
-
-    return;
-
-}
 
     janela.document.open();
 
