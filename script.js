@@ -1182,16 +1182,7 @@ html += `
 </html>
 
 `;
-
-const janela = window.open();
-
-janela.document.write(html);
-
-janela.document.close();
-
-janela.focus();
-
-janela.print();
+const janela = window.open("", "_blank");
 
 if(!janela){
 
@@ -1202,18 +1193,18 @@ if(!janela){
 }
 
 janela.document.open();
+
 janela.document.write(html);
+
 janela.document.close();
 
-setTimeout(() => {
+setTimeout(()=>{
 
     janela.focus();
+
     janela.print();
 
-}, 700);
-
-}
-
+},500);
 // =====================================
 // BUSCAR MELHOR PULMÃO LIVRE
 // =====================================
@@ -1683,15 +1674,17 @@ ${item.moverPara}
 
 `;
 
-    const janela = window.open(
+   const janela = window.open("", "_blank");
 
-        "",
+console.log("Janela:", janela);
 
-        "_blank",
+if(!janela){
 
-        "width=1200,height=900"
+    alert("Popup bloqueado.");
 
-    );
+    return;
+
+}
 
     janela.document.open();
 
