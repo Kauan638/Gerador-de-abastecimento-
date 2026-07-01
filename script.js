@@ -1421,13 +1421,32 @@ if(destinoLivre){
 // =====================================
 // IMPRIMIR SUGESTÕES
 // =====================================
-
 function imprimirSugestoes(){
 
-let html = `
+    const dados = [...sugestoesMovimentacao];
 
+    if(!dados.length){
+
+        alert("Nenhuma sugestão encontrada.");
+
+        return;
+
+    }
+
+    dados.sort((a,b)=>{
+
+        if(a.ruaApanha !== b.ruaApanha){
+
+            return a.ruaApanha - b.ruaApanha;
+
+        }
+
+        return b.economia - a.economia;
+
+    });
+
+    let html = `
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 
 <head>
@@ -1474,27 +1493,13 @@ h1{
 
 }
 
-.sub{
-
-    margin-top:5px;
-
-    margin-bottom:20px;
-
-    text-align:center;
-
-    color:#666;
-
-    font-size:13px;
-
-}
-
 .info{
 
     display:flex;
 
     justify-content:space-between;
 
-    margin-bottom:15px;
+    margin:15px 0;
 
     font-size:13px;
 
@@ -1512,9 +1517,11 @@ th{
 
     background:#0F4C81;
 
-    color:white;
+    color:#fff;
 
     padding:10px;
+
+    border:1px solid #DDD;
 
     font-size:12px;
 
@@ -1522,9 +1529,9 @@ th{
 
 td{
 
-    padding:8px;
-
     border:1px solid #DDD;
+
+    padding:8px;
 
     font-size:11px;
 
@@ -1536,44 +1543,42 @@ td{
 
     color:white;
 
-    font-size:16px;
-
     font-weight:bold;
 
-    padding:10px;
+    font-size:15px;
 
 }
 
-.vermelho{
+.alta{
 
-    background:#ffe5e5;
+    background:#ffdede;
 
 }
 
-.laranja{
+.media{
 
     background:#fff2d6;
 
 }
 
-.amarelo{
+.baixa{
 
-    background:#fffce5;
+    background:#ffffdd;
 
 }
 
 @media print{
 
-.rua,
-th,
-.vermelho,
-.laranja,
-.amarelo{
+    .rua,
+    th,
+    .alta,
+    .media,
+    .baixa{
 
--webkit-print-color-adjust:exact;
-print-color-adjust:exact;
+        -webkit-print-color-adjust:exact;
+        print-color-adjust:exact;
 
-}
+    }
 
 }
 
@@ -1589,12 +1594,6 @@ print-color-adjust:exact;
 
 </h1>
 
-<div class="sub">
-
-Pulmões sugeridos automaticamente
-
-</div>
-
 <div class="info">
 
 <div>
@@ -1609,7 +1608,7 @@ ${new Date().toLocaleString("pt-BR")}
 
 <b>Total:</b>
 
-${sugestoesMovimentacao.length}
+${dados.length}
 
 </div>
 
@@ -1636,8 +1635,128 @@ ${sugestoesMovimentacao.length}
 </thead>
 
 <tbody>
+
 `;
 
+    let ruaAtual = "";
+
+    dados.forEach(item=>{
+
+        if(item.ruaApanha != ruaAtual){
+
+            ruaAtual = item.ruaApanha;
+
+            html += `
+
+<tr>
+
+<td colspan="5" class="rua">
+
+📍 RUA ${String(ruaAtual).padStart(3,"0")}
+
+</td>
+
+</tr>
+
+`;
+
+        }
+
+        let classe="";
+
+        if(item.economia>=20){
+
+            classe="alta";
+
+        }
+        else if(item.economia>=10){
+
+            classe="media";
+
+        }
+        else{
+
+            classe="baixa";
+
+        }
+
+        html += `
+
+<tr class="${classe}">
+
+<td>
+
+<b>${item.sku}</b>
+
+</td>
+
+<td>
+
+${item.descricao}
+
+</td>
+
+<td>
+
+${item.enderecoAtual}
+
+</td>
+
+<td>
+
+${item.moverPara}
+
+</td>
+
+<td style="text-align:center;">
+
+<b>${item.economia}</b>
+
+</td>
+
+</tr>
+
+`;
+
+    });
+
+    html += `
+
+</tbody>
+
+</table>
+
+</body>
+
+</html>
+
+`;
+
+    const janela = window.open(
+
+        "",
+
+        "_blank",
+
+        "width=1200,height=900"
+
+    );
+
+    janela.document.open();
+
+    janela.document.write(html);
+
+    janela.document.close();
+
+    setTimeout(()=>{
+
+        janela.focus();
+
+        janela.print();
+
+    },500);
+
+}
 // =====================================
 // AGRUPAR POR RUA
 // =====================================
