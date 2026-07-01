@@ -1705,7 +1705,7 @@ function renderizarTabelaSugestoes(dados){
 
 }
 
-function aplicarFiltrosSugestao(){
+function obterSugestoesFiltradas(){
 
     const skuFiltro =
     document
@@ -1721,8 +1721,7 @@ function aplicarFiltrosSugestao(){
     .toLowerCase()
     .trim();
 
-    const filtrado =
-    sugestoesMovimentacao.filter(item=>{
+    return sugestoesMovimentacao.filter(item=>{
 
         const skuOk =
         item.sku
@@ -1746,7 +1745,13 @@ function aplicarFiltrosSugestao(){
 
     });
 
-    renderizarTabelaSugestoes(filtrado);
+}
+
+function aplicarFiltrosSugestao(){
+
+    renderizarTabelaSugestoes(
+        obterSugestoesFiltradas()
+    );
 
 }
 
@@ -1770,21 +1775,31 @@ function imprimirSugestoesModal(){
 
     }
 
-    imprimirSugestoes(janela);
+    // Imprime respeitando o filtro de SKU/Rua que
+    // estiver digitado na tela naquele momento. Se os
+    // campos estiverem vazios, imprime tudo (comportamento
+    // igual a antes).
+    imprimirSugestoes(
+        janela,
+        obterSugestoesFiltradas()
+    );
 
 }
 
 // =====================================
 // IMPRIMIR SUGESTÕES
 // =====================================
-function imprimirSugestoes(janela){
+function imprimirSugestoes(janela, dadosBase){
+
+    const base =
+    dadosBase || sugestoesMovimentacao;
 
     // Na impressão, mostramos apenas sugestões que
     // realmente têm um pulmão livre para mover. Itens
     // sem posição livre continuam visíveis no modal em
     // tela, só não entram na versão impressa.
     const dados =
-    sugestoesMovimentacao.filter(
+    base.filter(
         item => item.moverPara
     );
 
