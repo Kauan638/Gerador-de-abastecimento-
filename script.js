@@ -1287,6 +1287,7 @@ let sugestoesMovimentacao = [];
 
 function gerarSugestoesMovimentacao(){
 
+    alert("Entrou na função");
     sugestoesMovimentacao = [];
 
     resultado.forEach(item=>{
