@@ -1183,11 +1183,15 @@ html += `
 
 `;
 
-const janela = window.open(
-    "",
-    "_blank",
-    "width=1200,height=900"
-);
+const janela = window.open("", "_blank");
+
+if(!janela){
+
+    alert("O navegador bloqueou a janela de impressão.");
+
+    return;
+
+}
 
 janela.document.open();
 janela.document.write(html);
