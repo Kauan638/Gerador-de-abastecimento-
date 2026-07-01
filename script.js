@@ -472,6 +472,29 @@ const listaPulmoes = pulmoes.map(p=>{
     };
 
 });
+
+let enderecoPulmao = "Sem Pulmão";
+
+if(listaPulmoes.length){
+
+    enderecoPulmao =
+
+    listaPulmoes
+
+    .slice(0,3)
+
+    .map(p => p.endereco)
+
+    .join(" | ");
+
+    if(listaPulmoes.length > 3){
+
+        enderecoPulmao +=
+        ` (+${listaPulmoes.length - 3} mais)`;
+
+    }
+
+}
     
      resultado.push({
 
@@ -1349,6 +1372,7 @@ if(livresNaRua.length){
 
             enderecoAtual:melhorPulmao.endereco,
 
+            moverPara:destino,
 
             economia
 
