@@ -1202,6 +1202,82 @@ setTimeout(() => {
 
 }
 
+// =====================================
+// BUSCAR MELHOR PULMÃO LIVRE
+// =====================================
+
+function buscarPulmaoLivre(rua){
+
+    const candidatos =
+
+    dadosPosicoes.filter(p=>{
+
+        const especie =
+        String(
+            p.ESPECIE_END || ""
+        )
+        .toUpperCase();
+
+        if(
+            !especie.includes("PULM")
+        ){
+            return false;
+        }
+
+        if(
+            Number(p.CODRUA) !== Number(rua)
+        ){
+            return false;
+        }
+
+        const quantidade =
+        Number(
+            p.QTD_END || 0
+        );
+
+        const status =
+        String(
+            p.ESTATUS_ENDERECO || ""
+        )
+        .toUpperCase();
+
+        return (
+
+            quantidade===0
+
+            ||
+
+            status.includes("LIV")
+
+            ||
+
+            status.includes("VAZ")
+
+        );
+
+    });
+
+    if(!candidatos.length){
+
+        return null;
+
+    }
+
+    candidatos.sort((a,b)=>{
+
+        const predioA =
+        Number(a.NROPREDIO);
+
+        const predioB =
+        Number(b.NROPREDIO);
+
+        return predioA-predioB;
+
+    });
+
+    return candidatos[0];
+
+}
 
 // =====================================
 // SUGESTÃO DE MOVIMENTAÇÃO
@@ -1289,74 +1365,31 @@ function gerarSugestoesMovimentacao(){
 // PROCURA UM PULMÃO LIVRE
 // =====================================
 
-let destino = "Não encontrado";
+const destinoLivre =
+buscarPulmaoLivre(
+    item.ruaApanha
+);
 
-const livresNaRua = dadosPosicoes.filter(p=>{
+let destino =
+"Não encontrado";
 
-    const especie =
-    String(
-        p.ESPECIE_END || ""
-    )
-    .toUpperCase();
-
-    if(!especie.includes("PULM")){
-        return false;
-    }
-
-    if(
-        Number(p.CODRUA) !==
-        item.ruaApanha
-    ){
-        return false;
-    }
-
-    const status =
-    String(
-        p.ESTATUS_ENDERECO || ""
-    )
-    .toUpperCase();
-
-    return(
-
-        status.includes("LIV")
-
-        ||
-
-        Number(p.QTD_END||0)===0
-
-    );
-
-});
-
-if(livresNaRua.length){
-
-    livresNaRua.sort((a,b)=>{
-
-        return (
-
-            Number(a.NROPREDIO)
-
-            -
-
-            Number(b.NROPREDIO)
-
-        );
-
-    });
-
-    const melhor = livresNaRua[0];
+if(destinoLivre){
 
     destino =
 
-    `${melhor.CODRUA}.`+
+    `${destinoLivre.CODRUA}.`+
 
-    `${melhor.NROPREDIO}.`+
+    `${destinoLivre.NROPREDIO}.`+
 
-    `${melhor.NROAPARTAMENTO}.`+
+    `${destinoLivre.NROAPARTAMENTO}.`+
 
-    `${melhor.NROSALA}`;
+    `${destinoLivre.NROSALA}`;
 
 }
+
+
+
+
         
         sugestoesMovimentacao.push({
 
