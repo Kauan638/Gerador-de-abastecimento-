@@ -1356,67 +1356,6 @@ function gerarSugestoesMovimentacao(){
     imprimirSugestoes();
 
 }
-// =====================================
-// PROCURA UM PULMÃO LIVRE
-// =====================================
-
-const destinoLivre =
-buscarPulmaoLivre(
-    item.ruaApanha
-);
-
-let destino =
-"Não encontrado";
-
-if(destinoLivre){
-
-    destino =
-
-    `${destinoLivre.CODRUA}.`+
-
-    `${destinoLivre.NROPREDIO}.`+
-
-    `${destinoLivre.NROAPARTAMENTO}.`+
-
-    `${destinoLivre.NROSALA}`;
-
-}
-
-
-
-
-        
-        sugestoesMovimentacao.push({
-
-            prioridade,
-
-            sku:item.sku,
-
-            descricao:item.descricao,
-
-            ruaApanha:item.ruaApanha,
-
-            ruaPulmao:melhorPulmao.rua,
-
-            enderecoAtual:melhorPulmao.endereco,
-
-            moverPara:destino,
-
-            economia
-
-        });
-
-    });
-
-    sugestoesMovimentacao.sort((a,b)=>{
-
-        return b.economia-a.economia;
-
-    });
-
-    renderizarSugestoes();
-
-}
 
 // =====================================
 // IMPRIMIR SUGESTÕES
