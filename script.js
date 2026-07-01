@@ -428,61 +428,50 @@ mapaPulmoes[
         }
 
 
-const pulmoesExibidos =
-pulmoes.slice(0,3);
+
 
 // =====================================
 // TRATAMENTO DOS PULMÕES
 // =====================================
 
-const listaPulmoes = pulmoes.map(p => {
+// =====================================
+// TRATAMENTO DOS PULMÕES
+// =====================================
 
-    return {
+const listaPulmoes = pulmoes.map(p=>{
 
-        rua: Number(p.CODRUA),
+    const endereco =
+    `${p.CODRUA}.${p.NROPREDIO}.${p.NROAPARTAMENTO}.${p.NROSALA}`;
 
-        endereco:
-        `${p.CODRUA}.${p.NROPREDIO}.${p.NROAPARTAMENTO}.${p.NROSALA}`,
+    return{
 
-        quantidade:
-        Number(p.QTD_END || 0),
+        rua:Number(p.CODRUA),
 
-        status:
-        String(
-            p.ESTATUS_ENDERECO || ""
-        ).toUpperCase(),
+        predio:Number(p.NROPREDIO),
+
+        apartamento:Number(p.NROAPARTAMENTO),
+
+        sala:Number(p.NROSALA),
+
+        endereco,
+
+        quantidade:Number(p.QTD_END||0),
+
+        livre:
+
+            String(
+                p.ESTATUS_ENDERECO||""
+            )
+
+            .toUpperCase()
+
+            .includes("LIVRE"),
 
         objeto:p
 
     };
 
 });
-
-const pulmoesExibidos =
-listaPulmoes.slice(0,3);
-
-let enderecoPulmao =
-"Sem Pulmão";
-
-if(listaPulmoes.length){
-
-    enderecoPulmao =
-
-    pulmoesExibidos
-
-    .map(p=>p.endereco)
-
-    .join(" | ");
-
-    if(listaPulmoes.length>3){
-
-        enderecoPulmao +=
-        ` (+${listaPulmoes.length-3} mais)`;
-
-    }
-
-}
-
     
      resultado.push({
 
@@ -495,13 +484,13 @@ if(listaPulmoes.length){
     endereco,
 
     pulmao:enderecoPulmao,
+pulmoes:listaPulmoes,
 
-    pulmoes:listaPulmoes,
+ruaApanha:Number(
+    posicao?.CODRUA || 0
+),
 
-    ruaApanha:
-    Number(
-        posicao?.CODRUA || 0
-    ),
+enderecoApanha:endereco,
 
     saldo,
 
@@ -1187,5 +1176,264 @@ setTimeout(() => {
     janela.print();
 
 }, 700);
+
+}
+
+
+// =====================================
+// SUGESTÃO DE MOVIMENTAÇÃO
+// =====================================
+
+let sugestoesMovimentacao = [];
+
+function gerarSugestoesMovimentacao(){
+
+    sugestoesMovimentacao = [];
+
+    resultado.forEach(item=>{
+
+        if(!item.pulmoes.length){
+            return;
+        }
+
+        const existeMesmoCorredor =
+
+            item.pulmoes.some(p=>{
+
+                return p.rua === item.ruaApanha;
+
+            });
+
+        if(existeMesmoCorredor){
+            return;
+        }
+
+        let melhorPulmao = item.pulmoes[0];
+
+        item.pulmoes.forEach(p=>{
+
+            if(
+
+                Math.abs(
+                    p.rua-item.ruaApanha
+                )
+
+                <
+
+                Math.abs(
+                    melhorPulmao.rua-item.ruaApanha
+                )
+
+            ){
+
+                melhorPulmao = p;
+
+            }
+
+        });
+
+        const economia =
+
+        Math.abs(
+
+            melhorPulmao.rua -
+
+            item.ruaApanha
+
+        );
+
+        let prioridade="🟢";
+
+        if(economia>=20){
+
+            prioridade="🔴";
+
+        }
+
+        else if(economia>=10){
+
+            prioridade="🟠";
+
+        }
+
+        else if(economia>=5){
+
+            prioridade="🟡";
+
+        }
+
+// =====================================
+// PROCURA UM PULMÃO LIVRE
+// =====================================
+
+let destino = "Não encontrado";
+
+const livresNaRua = dadosPosicoes.filter(p=>{
+
+    const especie =
+    String(
+        p.ESPECIE_END || ""
+    )
+    .toUpperCase();
+
+    if(!especie.includes("PULM")){
+        return false;
+    }
+
+    if(
+        Number(p.CODRUA) !==
+        item.ruaApanha
+    ){
+        return false;
+    }
+
+    const status =
+    String(
+        p.ESTATUS_ENDERECO || ""
+    )
+    .toUpperCase();
+
+    return(
+
+        status.includes("LIV")
+
+        ||
+
+        Number(p.QTD_END||0)===0
+
+    );
+
+});
+
+if(livresNaRua.length){
+
+    livresNaRua.sort((a,b)=>{
+
+        return (
+
+            Number(a.NROPREDIO)
+
+            -
+
+            Number(b.NROPREDIO)
+
+        );
+
+    });
+
+    const melhor = livresNaRua[0];
+
+    destino =
+
+    `${melhor.CODRUA}.`+
+
+    `${melhor.NROPREDIO}.`+
+
+    `${melhor.NROAPARTAMENTO}.`+
+
+    `${melhor.NROSALA}`;
+
+}
+        
+        sugestoesMovimentacao.push({
+
+            prioridade,
+
+            sku:item.sku,
+
+            descricao:item.descricao,
+
+            ruaApanha:item.ruaApanha,
+
+            ruaPulmao:melhorPulmao.rua,
+
+            enderecoAtual:melhorPulmao.endereco,
+
+
+            economia
+
+        });
+
+    });
+
+    sugestoesMovimentacao.sort((a,b)=>{
+
+        return b.economia-a.economia;
+
+    });
+
+    renderizarSugestoes();
+
+}
+
+function renderizarSugestoes(){
+
+    const painel =
+    document.getElementById("painelSugestao");
+
+    painel.style.display="block";
+
+    document.getElementById("movSkus").innerText =
+    resultado.length;
+
+    document.getElementById("movSugestoes").innerText =
+    sugestoesMovimentacao.length;
+
+    document.getElementById("movEconomia").innerText =
+
+    sugestoesMovimentacao.reduce(
+
+        (s,x)=>s+x.economia,
+
+        0
+
+    )+" ruas";
+
+    document.getElementById("movMaior").innerText =
+
+    sugestoesMovimentacao.length
+
+    ?
+
+    sugestoesMovimentacao[0].economia+" ruas"
+
+    :
+
+    "0";
+
+    const tbody =
+    document.getElementById("tbodySugestoes");
+
+    let html="";
+
+    sugestoesMovimentacao.forEach(item=>{
+
+        html+=`
+
+<tr>
+
+<td>${item.prioridade}</td>
+
+<td>${item.sku}</td>
+
+<td>${item.descricao}</td>
+
+<td>${item.ruaApanha}</td>
+
+<td>${item.ruaPulmao}</td>
+
+<td>${item.enderecoAtual}</td>
+
+<td>${item.moverPara}</td>
+
+<td>${item.economia} ruas</td>
+
+</tr>
+
+`;
+
+    });
+
+    tbody.innerHTML=html;
 
 }
