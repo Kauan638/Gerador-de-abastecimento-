@@ -258,6 +258,43 @@ function lerTXT(arquivo){
 }
 
 // =====================================
+// CÁLCULO DE NORMA
+// =====================================
+// Aceita tanto um número simples (ex: "6") quanto o formato
+// "caixas por nível x níveis" (ex: "3X2"), multiplicando os
+// dois valores quando esse padrão existe no campo NORMA_APANHA.
+
+function calcularNorma(normaRaw){
+
+    const texto =
+    String(normaRaw || "0").trim();
+
+    const combinada =
+    texto.match(/(\d+)\s*[xX]\s*(\d+)/);
+
+    if(combinada){
+
+        const a = Number(combinada[1]);
+        const b = Number(combinada[2]);
+
+        return {
+            valor: a * b,
+            texto: `${a}x${b} = ${a * b}`
+        };
+
+    }
+
+    const numero =
+    Number(texto.match(/\d+/)?.[0]) || 0;
+
+    return {
+        valor: numero,
+        texto: String(numero)
+    };
+
+}
+
+// =====================================
 // GERAR ABASTECIMENTO
 // =====================================
 
@@ -378,13 +415,12 @@ mapaPulmoes[
         const saldo =
         Number(posicao?.QTD_END || 0);
 
-        const norma =
-        Number(
-            String(
-                posicao?.NORMA_APANHA || 0
-            )
-            .match(/\d+/)?.[0]
-        ) || 0;
+        const normaInfo =
+        calcularNorma(
+            posicao?.NORMA_APANHA
+        );
+
+        const norma = normaInfo.valor;
 
         let falta = 0;
 
@@ -511,6 +547,8 @@ enderecoApanha:endereco,
     saldo,
 
     norma,
+
+    normaTexto: normaInfo.texto,
 
     falta,
 
@@ -960,31 +998,31 @@ td{
 
 .colSku{
 
-    width:30%;
+    width:26%;
 
 }
 
 .colApanha{
 
-    width:15%;
+    width:13%;
 
 }
 
 .colPulmao{
 
-    width:30%;
+    width:24%;
 
 }
 
-.colFalta{
+.colReposicao{
 
-    width:10%;
+    width:24%;
 
 }
 
 .colPrioridade{
 
-    width:15%;
+    width:13%;
 
 }
 
@@ -1054,15 +1092,25 @@ td{
 
 }
 
-.falta{
+.reposicao{
 
-    text-align:center;
+    text-align:left;
 
-    font-size:20px;
+    font-size:11px;
+
+    line-height:16px;
+
+}
+
+.reposicao .abastecer-linha{
 
     font-weight:bold;
 
+    font-size:13px;
+
     color:#dc2626;
+
+    margin-top:2px;
 
 }
 
@@ -1152,9 +1200,9 @@ Pulmões
 
 </th>
 
-<th class="colFalta">
+<th class="colReposicao">
 
-Falta
+Reposição
 
 </th>
 
@@ -1259,9 +1307,15 @@ dadosImpressao.forEach(item=>{
 
         </td>
 
-        <td class="falta">
+        <td class="reposicao">
 
-            ${item.falta}
+            <div>Qtd real pedido: ${item.pedido}</div>
+
+            <div>Qtd atual apanha: ${item.saldo}</div>
+
+            <div class="abastecer-linha">Abastecer: ${item.falta}</div>
+
+            <div>Norma: ${item.normaTexto}</div>
 
         </td>
 
@@ -1450,31 +1504,31 @@ td{
 
 .colSku{
 
-    width:30%;
+    width:26%;
 
 }
 
 .colApanha{
 
-    width:15%;
+    width:13%;
 
 }
 
 .colPulmao{
 
-    width:30%;
+    width:24%;
 
 }
 
-.colFalta{
+.colReposicao{
 
-    width:10%;
+    width:24%;
 
 }
 
 .colPrioridade{
 
-    width:15%;
+    width:13%;
 
 }
 
@@ -1528,15 +1582,25 @@ td{
 
 }
 
-.falta{
+.reposicao{
 
-    text-align:center;
+    text-align:left;
 
-    font-size:20px;
+    font-size:11px;
+
+    line-height:16px;
+
+}
+
+.reposicao .abastecer-linha{
 
     font-weight:bold;
 
+    font-size:13px;
+
     color:#dc2626;
+
+    margin-top:2px;
 
 }
 
@@ -1625,9 +1689,9 @@ Pulmões
 
 </th>
 
-<th class="colFalta">
+<th class="colReposicao">
 
-Falta
+Reposição
 
 </th>
 
@@ -1705,9 +1769,15 @@ dadosImpressao.forEach(item=>{
 
         </td>
 
-        <td class="falta">
+        <td class="reposicao">
 
-            ${item.falta}
+            <div>Qtd real pedido: ${item.pedido}</div>
+
+            <div>Qtd atual apanha: ${item.saldo}</div>
+
+            <div class="abastecer-linha">Abastecer: ${item.falta}</div>
+
+            <div>Norma: ${item.normaTexto}</div>
 
         </td>
 
