@@ -1313,6 +1313,453 @@ setTimeout(()=>{
 },500);
 
 }
+
+// =====================================
+// IMPRIMIR CRÍTICOS POR VOLUME FALTANTE
+// =====================================
+// Mesma lista de itens da impressão por rua,
+// porém ordenada apenas pelo volume que falta
+// (campo "falta"), do maior para o menor,
+// sem agrupar por rua ou qualquer outro critério.
+function imprimirAbastecimentoPorVolume(){
+
+    const dadosImpressao =
+
+    resultado
+
+    .filter(item => item.status === "ABASTECER")
+
+    // Mesma regra da impressão por rua: só entram
+    // itens que possuem pulmão cadastrado.
+    .filter(item => item.pulmao !== "Sem Pulmão")
+
+    .sort((a,b)=> b.falta - a.falta);
+
+    let html = `
+
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Gerador de Abastecimento PCP</title>
+
+<style>
+
+@page{
+
+    size:A4 portrait;
+
+    margin:8mm;
+
+}
+
+*{
+
+    box-sizing:border-box;
+
+}
+
+body{
+
+    font-family:Arial,Helvetica,sans-serif;
+
+    color:#222;
+
+    margin:0;
+
+    padding:0;
+
+}
+
+h1{
+
+    margin:0;
+
+    text-align:center;
+
+    color:#1e3a8a;
+
+    font-size:18px;
+
+    margin-bottom:8px;
+
+}
+
+.cabecalho{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:flex-start;
+
+    margin-bottom:8px;
+
+    font-size:12px;
+
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    table-layout:fixed;
+
+    page-break-before:auto;
+
+}
+
+
+tr{
+
+    page-break-inside:avoid;
+
+}
+
+th{
+
+    background:#2563eb;
+
+    color:white;
+
+    padding:10px;
+
+    border:1px solid #d9d9d9;
+
+    font-size:12px;
+
+}
+
+td{
+
+    border:1px solid #d9d9d9;
+
+    padding:8px;
+
+    vertical-align:top;
+
+    font-size:11px;
+
+}
+
+.colSku{
+
+    width:30%;
+
+}
+
+.colApanha{
+
+    width:15%;
+
+}
+
+.colPulmao{
+
+    width:30%;
+
+}
+
+.colFalta{
+
+    width:10%;
+
+}
+
+.colPrioridade{
+
+    width:15%;
+
+}
+
+.critico{
+
+    background:#ffe5e5;
+
+}
+
+.alta{
+
+    background:#fff4cf;
+
+}
+
+.normal{
+
+    background:white;
+
+}
+
+.sku{
+
+    font-size:20px;
+
+    font-weight:bold;
+
+    margin-bottom:6px;
+
+}
+
+.descricao{
+
+    font-size:12px;
+
+    line-height:17px;
+
+}
+
+.apanha{
+
+    font-size:15px;
+
+    font-weight:bold;
+
+}
+
+.pulmao{
+
+    line-height:18px;
+
+}
+
+.falta{
+
+    text-align:center;
+
+    font-size:20px;
+
+    font-weight:bold;
+
+    color:#dc2626;
+
+}
+
+.prioridade{
+
+    text-align:center;
+
+    font-size:14px;
+
+    font-weight:bold;
+
+}
+
+@media print{
+
+    body{
+
+        zoom:100%;
+
+    }
+
+    .critico,
+    .alta{
+
+        -webkit-print-color-adjust:exact;
+
+        print-color-adjust:exact;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>
+
+🚚 GERADOR DE ABASTECIMENTO PCP — POR VOLUME FALTANTE
+
+</h1>
+
+<div class="cabecalho">
+
+    <div>
+
+        <b>Data:</b>
+
+        ${new Date().toLocaleString("pt-BR")}
+
+    </div>
+
+    <div>
+
+        <b>Total:</b>
+
+        ${dadosImpressao.length} SKUs
+
+    </div>
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th class="colSku">
+
+SKU / Descrição
+
+</th>
+
+<th class="colApanha">
+
+Apanha
+
+</th>
+
+<th class="colPulmao">
+
+Pulmões
+
+</th>
+
+<th class="colFalta">
+
+Falta
+
+</th>
+
+<th class="colPrioridade">
+
+Prioridade
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+`;
+
+dadosImpressao.forEach(item=>{
+
+    let classe = "normal";
+
+    if(item.prioridade === "🔴 CRÍTICO"){
+
+        classe = "critico";
+
+    }
+    else if(item.prioridade === "🟠 ALTA"){
+
+        classe = "alta";
+
+    }
+
+    let pulmoes =
+    item.pulmao;
+
+    pulmoes =
+
+    pulmoes
+
+    .replace(/\s*\|\s*/g,"<br>• ")
+
+    .replace(/^/,"• ")
+
+    .replace("<br>• (+","<br><b>(+");
+
+    html += `
+
+    <tr class="${classe}">
+
+        <td>
+
+            <div class="sku">
+
+                ${item.sku}
+
+            </div>
+
+            <div class="descricao">
+
+                ${item.descricao}
+
+            </div>
+
+        </td>
+
+        <td class="apanha">
+
+            ${item.endereco}
+
+        </td>
+
+        <td class="pulmao">
+
+            ${pulmoes}
+
+        </td>
+
+        <td class="falta">
+
+            ${item.falta}
+
+        </td>
+
+        <td class="prioridade">
+
+            ${item.prioridade}
+
+        </td>
+
+    </tr>
+
+    `;
+
+});
+
+html += `
+
+</tbody>
+
+</table>
+
+</body>
+
+</html>
+
+`;
+const janela = window.open("", "_blank");
+
+if(!janela){
+
+    alert("O navegador bloqueou a janela de impressão.");
+
+    return;
+
+}
+
+janela.document.open();
+
+janela.document.write(html);
+
+janela.document.close();
+
+setTimeout(()=>{
+
+    janela.focus();
+
+    janela.print();
+
+},500);
+
+}
+
 // =====================================
 // MAPA DE PULMÕES LIVRES (PRÉ-CALCULADO)
 // =====================================
