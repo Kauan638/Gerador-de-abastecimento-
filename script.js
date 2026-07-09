@@ -437,6 +437,19 @@ mapaPulmoes[
 
         }
 
+        // ABASTECER nunca pode passar da Norma (capacidade
+        // física da posição de apanha), mesmo que o pedido
+        // seja maior. FALTA continua sendo o total que falta
+        // para o pedido completo (pode exigir mais de uma
+        // reposição quando maior que a Norma).
+        const abastecer =
+        !posicao
+        ? falta
+        : Math.max(
+            Math.min(item.pedido, norma) - saldo,
+            0
+        );
+
         const endereco =
         posicao
         ?
@@ -551,6 +564,8 @@ enderecoApanha:endereco,
     normaTexto: normaInfo.texto,
 
     falta,
+
+    abastecer,
 
     status,
 
@@ -1309,13 +1324,15 @@ dadosImpressao.forEach(item=>{
 
         <td class="reposicao">
 
-            <div>Qtd real pedido: ${item.pedido}</div>
+            <div>Qtd pedido: ${item.pedido}</div>
 
-            <div>Qtd atual apanha: ${item.saldo}</div>
+            <div>Qtd Apanha: ${item.saldo}</div>
 
-            <div class="abastecer-linha">Abastecer: ${item.falta}</div>
+            <div>Norma Apanha: ${item.normaTexto}</div>
 
-            <div>Norma: ${item.normaTexto}</div>
+            <div class="abastecer-linha">Abastecer: ${item.abastecer}</div>
+
+            <div>Falta: ${item.falta}</div>
 
         </td>
 
@@ -1771,13 +1788,15 @@ dadosImpressao.forEach(item=>{
 
         <td class="reposicao">
 
-            <div>Qtd real pedido: ${item.pedido}</div>
+            <div>Qtd pedido: ${item.pedido}</div>
 
-            <div>Qtd atual apanha: ${item.saldo}</div>
+            <div>Qtd Apanha: ${item.saldo}</div>
 
-            <div class="abastecer-linha">Abastecer: ${item.falta}</div>
+            <div>Norma Apanha: ${item.normaTexto}</div>
 
-            <div>Norma: ${item.normaTexto}</div>
+            <div class="abastecer-linha">Abastecer: ${item.abastecer}</div>
+
+            <div>Falta: ${item.falta}</div>
 
         </td>
 
