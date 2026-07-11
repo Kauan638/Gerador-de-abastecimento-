@@ -11,15 +11,37 @@ let paginaAtual = 1;
 // =====================================
 // CONFIGURAÇÃO DE PAVILHÕES
 // =====================================
-// O pavilhão de cada SKU é definido pela faixa de Rua (CODRUA)
-// da posição de apanha. AJUSTE as faixas abaixo conforme o
-// layout real do CD-107 — cada pavilhão é [ruaInicio, ruaFim].
+// O pavilhão de cada SKU é definido pela Rua (CODRUA) da posição
+// de apanha. As faixas abaixo foram extraídas diretamente do
+// arquivo real de Posição de Endereços do CD-107 (coluna PAVILHAO
+// cruzada com CODRUA), por isso cada pavilhão é uma LISTA de
+// intervalos [ruaInicio, ruaFim] — as ruas não são contínuas.
+// Caso o layout do CD mude, basta atualizar os intervalos abaixo.
 
 const PAVILHOES = [
 
-    { nome:"Pavilhão A", ruaInicio:1,   ruaFim:50  },
-    { nome:"Pavilhão B", ruaInicio:51,  ruaFim:100 },
-    { nome:"Pavilhão C", ruaInicio:101, ruaFim:150 },
+    {
+        nome:"Pavilhão 1",
+        ruas:[
+            [3,15],
+            [21,24],
+            [51,66],
+            [71,106],
+        ],
+    },
+    {
+        nome:"Pavilhão 2",
+        ruas:[
+            [26,27],
+            [29,31],
+        ],
+    },
+    {
+        nome:"Pavilhão 3",
+        ruas:[
+            [300,317],
+        ],
+    },
 
 ];
 
@@ -29,8 +51,10 @@ function obterPavilhao(rua){
 
     const encontrado =
     PAVILHOES.find(p =>
-        r >= p.ruaInicio &&
-        r <= p.ruaFim
+        p.ruas.some(([ruaInicio, ruaFim]) =>
+            r >= ruaInicio &&
+            r <= ruaFim
+        )
     );
 
     return encontrado
@@ -1191,7 +1215,30 @@ function imprimirAbastecimento(){
 
     size:A4 portrait;
 
-    margin:8mm;
+    margin:8mm 8mm 14mm 8mm;
+
+}
+
+/* Numeração de páginas — ímpar = frente, par = verso */
+@page :right{
+
+    @bottom-center{
+        content:"Página " counter(page) " (frente)";
+        font-family:Arial,Helvetica,sans-serif;
+        font-size:9px;
+        color:#666;
+    }
+
+}
+
+@page :left{
+
+    @bottom-center{
+        content:"Página " counter(page) " (verso)";
+        font-family:Arial,Helvetica,sans-serif;
+        font-size:9px;
+        color:#666;
+    }
 
 }
 
@@ -1661,6 +1708,16 @@ html += `
 
 </table>
 
+<script>
+window.PagedConfig = {
+    after: () => {
+        window.focus();
+        window.print();
+    }
+};
+</script>
+<script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
+
 </body>
 
 </html>
@@ -1681,14 +1738,6 @@ janela.document.open();
 janela.document.write(html);
 
 janela.document.close();
-
-setTimeout(()=>{
-
-    janela.focus();
-
-    janela.print();
-
-},500);
 
 }
 
@@ -1731,7 +1780,30 @@ function imprimirAbastecimentoPorVolume(){
 
     size:A4 portrait;
 
-    margin:8mm;
+    margin:8mm 8mm 14mm 8mm;
+
+}
+
+/* Numeração de páginas — ímpar = frente, par = verso */
+@page :right{
+
+    @bottom-center{
+        content:"Página " counter(page) " (frente)";
+        font-family:Arial,Helvetica,sans-serif;
+        font-size:9px;
+        color:#666;
+    }
+
+}
+
+@page :left{
+
+    @bottom-center{
+        content:"Página " counter(page) " (verso)";
+        font-family:Arial,Helvetica,sans-serif;
+        font-size:9px;
+        color:#666;
+    }
 
 }
 
@@ -2157,6 +2229,16 @@ html += `
 
 </table>
 
+<script>
+window.PagedConfig = {
+    after: () => {
+        window.focus();
+        window.print();
+    }
+};
+</script>
+<script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
+
 </body>
 
 </html>
@@ -2177,14 +2259,6 @@ janela.document.open();
 janela.document.write(html);
 
 janela.document.close();
-
-setTimeout(()=>{
-
-    janela.focus();
-
-    janela.print();
-
-},500);
 
 }
 
@@ -2708,7 +2782,30 @@ function imprimirSugestoes(janela, dadosBase){
 
     size:A4 portrait;
 
-    margin:8mm;
+    margin:8mm 8mm 14mm 8mm;
+
+}
+
+/* Numeração de páginas — ímpar = frente, par = verso */
+@page :right{
+
+    @bottom-center{
+        content:"Página " counter(page) " (frente)";
+        font-family:Arial,Helvetica,sans-serif;
+        font-size:9px;
+        color:#666;
+    }
+
+}
+
+@page :left{
+
+    @bottom-center{
+        content:"Página " counter(page) " (verso)";
+        font-family:Arial,Helvetica,sans-serif;
+        font-size:9px;
+        color:#666;
+    }
 
 }
 
@@ -2959,6 +3056,16 @@ ${item.moverPara || "Sem posição livre"}
 
 </table>
 
+<script>
+window.PagedConfig = {
+    after: () => {
+        window.focus();
+        window.print();
+    }
+};
+</script>
+<script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
+
 </body>
 
 </html>
@@ -2972,13 +3079,5 @@ ${item.moverPara || "Sem posição livre"}
     janela.document.write(html);
 
     janela.document.close();
-
-    setTimeout(()=>{
-
-        janela.focus();
-
-        janela.print();
-
-    },500);
 
 }
