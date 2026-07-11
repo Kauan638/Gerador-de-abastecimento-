@@ -12,34 +12,39 @@ let paginaAtual = 1;
 // CONFIGURAÇÃO DE PAVILHÕES
 // =====================================
 // O pavilhão de cada SKU é definido pela Rua (CODRUA) da posição
-// de apanha. As faixas abaixo foram extraídas diretamente do
-// arquivo real de Posição de Endereços do CD-107 (coluna PAVILHAO
-// cruzada com CODRUA), por isso cada pavilhão é uma LISTA de
+// de apanha. As faixas abaixo foram extraídas da relação oficial
+// enviada (Perecível.txt, Pavilhão_1.txt, Pavilhão_2.txt,
+// Pavilhão_3.txt), por isso cada pavilhão é uma LISTA de
 // intervalos [ruaInicio, ruaFim] — as ruas não são contínuas.
 // Caso o layout do CD mude, basta atualizar os intervalos abaixo.
 
 const PAVILHOES = [
 
     {
-        nome:"Pavilhão 1",
-        ruas:[
-            [3,15],
-            [21,24],
-            [51,66],
-            [71,106],
-        ],
-    },
-    {
-        nome:"Pavilhão 2",
+        nome:"Perecível",
         ruas:[
             [26,27],
             [29,31],
         ],
     },
     {
+        nome:"Pavilhão 1",
+        ruas:[
+            [3,14],
+            [21,24],
+            [51,65],
+        ],
+    },
+    {
+        nome:"Pavilhão 2",
+        ruas:[
+            [71,106],
+        ],
+    },
+    {
         nome:"Pavilhão 3",
         ruas:[
-            [300,317],
+            [311,317],
         ],
     },
 
