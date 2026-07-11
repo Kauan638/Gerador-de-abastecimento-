@@ -502,6 +502,17 @@ mapaPulmoes[
         const saldo =
         Number(posicao?.QTD_END || 0);
 
+        // EMBALAGEM = quantidade de unidades por caixa desse SKU
+        // na posição de apanha. Usada para converter o pedido
+        // (que vem em unidades) para volume em caixas.
+        const embalagem =
+        Number(posicao?.EMBALAGEM || 0);
+
+        const caixasPedido =
+        embalagem > 0
+        ? item.pedido / embalagem
+        : 0;
+
         const normaInfo =
         calcularNorma(
             posicao?.NORMA_APANHA
@@ -651,6 +662,10 @@ enderecoApanha:endereco,
 
     norma,
 
+    embalagem,
+
+    caixasPedido,
+
     normaTexto: normaInfo.texto,
 
     falta,
@@ -690,9 +705,14 @@ console.log(
 
     popularFiltroPavilhao();
 
-    paginaAtual = 1;
-
-    renderizarTabela();
+    // Reaplica os filtros que já estiverem ativos na tela
+    // (SKU / Status / Pavilhão) em vez de forçar a tabela
+    // sem filtro nenhum. Sem isso, toda vez que a sincronização
+    // automática detecta uma mudança no arquivo e reprocessa
+    // (a cada 5s), o filtro que o usuário tinha digitado era
+    // descartado silenciosamente e a tabela voltava a mostrar
+    // tudo — dando a impressão de que o filtro "travou".
+    aplicarFiltros();
 
     console.log(resultado);
 
@@ -715,10 +735,12 @@ function atualizarKPIs(){
     document
     .getElementById("kpiUnidades")
     .innerText =
-    resultado.reduce(
-        (s,x)=>s+x.falta,
-        0
-    );
+    Math.round(
+        resultado.reduce(
+            (s,x)=>s+(x.caixasPedido||0),
+            0
+        )
+    ).toLocaleString("pt-BR");
 
     document
     .getElementById("kpiSemApanha")
