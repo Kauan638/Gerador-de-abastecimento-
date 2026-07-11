@@ -1044,6 +1044,17 @@ window.addEventListener("load",()=>{
 
 });
 
+function obterPavilhaoFiltroAtual(){
+
+    const select =
+    document.getElementById("filtroPavilhao");
+
+    return select
+    ? select.value
+    : "";
+
+}
+
 function obterResultadoFiltrado(){
 
     const skuFiltro =
@@ -1183,11 +1194,21 @@ function imprimirAbastecimento(){
 
     };
 
+    // Respeita o pavilhão selecionado em Filtros. Se estiver
+    // em "Todos Pavilhões", imprime tudo como antes.
+    const pavilhaoFiltro =
+    obterPavilhaoFiltroAtual();
+
     const dadosImpressao =
 
     resultado
 
     .filter(item => item.status === "ABASTECER")
+
+    .filter(item =>
+        !pavilhaoFiltro ||
+        item.pavilhao === pavilhaoFiltro
+    )
 
     // Só entram na impressão itens que têm pelo menos
     // um endereço de pulmão cadastrado. Itens "Sem Pulmão"
@@ -1562,6 +1583,14 @@ td{
 
     <div>
 
+        <b>Pavilhão:</b>
+
+        ${pavilhaoFiltro || "Todos"}
+
+    </div>
+
+    <div>
+
         <b>Total:</b>
 
         ${dadosImpressao.length} SKUs
@@ -1777,11 +1806,21 @@ janela.document.close();
 // sem agrupar por rua ou qualquer outro critério.
 function imprimirAbastecimentoPorVolume(){
 
+    // Respeita o pavilhão selecionado em Filtros. Se estiver
+    // em "Todos Pavilhões", imprime tudo como antes.
+    const pavilhaoFiltro =
+    obterPavilhaoFiltroAtual();
+
     const dadosImpressao =
 
     resultado
 
     .filter(item => item.status === "ABASTECER")
+
+    .filter(item =>
+        !pavilhaoFiltro ||
+        item.pavilhao === pavilhaoFiltro
+    )
 
     // Mesma regra da impressão por rua: só entram
     // itens que possuem pulmão cadastrado.
@@ -2110,6 +2149,14 @@ td{
 
     <div>
 
+        <b>Pavilhão:</b>
+
+        ${pavilhaoFiltro || "Todos"}
+
+    </div>
+
+    <div>
+
         <b>Total:</b>
 
         ${dadosImpressao.length} SKUs
@@ -2241,6 +2288,545 @@ dadosImpressao.forEach(item=>{
         <td class="prioridade">
 
             ${item.prioridade}
+
+        </td>
+
+    </tr>
+
+    `;
+
+});
+
+html += `
+
+</tbody>
+
+</table>
+
+<script>
+window.PagedConfig = {
+    after: () => {
+        window.focus();
+        window.print();
+    }
+};
+</script>
+<script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
+
+</body>
+
+</html>
+
+`;
+const janela = window.open("", "_blank");
+
+if(!janela){
+
+    alert("O navegador bloqueou a janela de impressão.");
+
+    return;
+
+}
+
+janela.document.open();
+
+janela.document.write(html);
+
+janela.document.close();
+
+}
+
+// =====================================
+// IMPRIMIR ITENS SEM PULMÃO
+// =====================================
+// Lista os itens que precisam de abastecimento (ABASTECER)
+// mas não têm NENHUM endereço de pulmão cadastrado no CD —
+// ou seja, não há de onde puxar reposição automaticamente.
+// Precisam de verificação manual (pode ser falta de cadastro,
+// SKU novo, ou estoque realmente zerado em todo o depósito).
+function imprimirSemPulmao(){
+
+    // Respeita o pavilhão selecionado em Filtros. Se estiver
+    // em "Todos Pavilhões", imprime tudo como antes.
+    const pavilhaoFiltro =
+    obterPavilhaoFiltroAtual();
+
+    const dadosImpressao =
+
+    resultado
+
+    .filter(item => item.status === "ABASTECER")
+
+    .filter(item => item.pulmao === "Sem Pulmão")
+
+    .filter(item =>
+        !pavilhaoFiltro ||
+        item.pavilhao === pavilhaoFiltro
+    )
+
+    .sort((a,b)=>{
+
+        const ruaA =
+        Number(a.endereco.split(".")[0]) || 0;
+
+        const ruaB =
+        Number(b.endereco.split(".")[0]) || 0;
+
+        if(ruaA !== ruaB){
+
+            return ruaA - ruaB;
+
+        }
+
+        return b.falta - a.falta;
+
+    });
+
+    if(!dadosImpressao.length){
+
+        alert("Nenhum item sem pulmão para imprimir (com os filtros atuais).");
+
+        return;
+
+    }
+
+    let html = `
+
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Gerador de Abastecimento PCP — Sem Pulmão</title>
+
+<style>
+
+@page{
+
+    size:A4 portrait;
+
+    margin:8mm 8mm 14mm 8mm;
+
+}
+
+/* Numeração de páginas — ímpar = frente, par = verso */
+@page :right{
+
+    @bottom-center{
+        content:"Página " counter(page) " (frente)";
+        font-family:Arial,Helvetica,sans-serif;
+        font-size:9px;
+        color:#666;
+    }
+
+}
+
+@page :left{
+
+    @bottom-center{
+        content:"Página " counter(page) " (verso)";
+        font-family:Arial,Helvetica,sans-serif;
+        font-size:9px;
+        color:#666;
+    }
+
+}
+
+*{
+
+    box-sizing:border-box;
+
+}
+
+body{
+
+    font-family:Arial,Helvetica,sans-serif;
+
+    color:#222;
+
+    margin:0;
+
+    padding:0;
+
+}
+
+h1{
+
+    margin:0;
+
+    text-align:center;
+
+    color:#b91c1c;
+
+    font-size:18px;
+
+    margin-bottom:8px;
+
+}
+
+.cabecalho{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:flex-start;
+
+    margin-bottom:8px;
+
+    font-size:12px;
+
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    table-layout:fixed;
+
+    page-break-before:auto;
+
+}
+
+
+tr{
+
+    page-break-inside:avoid;
+
+}
+
+th{
+
+    background:#b91c1c;
+
+    color:white;
+
+    padding:10px;
+
+    border:1px solid #d9d9d9;
+
+    font-size:12px;
+
+}
+
+td{
+
+    border:1px solid #d9d9d9;
+
+    padding:8px;
+
+    vertical-align:top;
+
+    font-size:11px;
+
+}
+
+.colSku{
+
+    width:30%;
+
+}
+
+.colApanha{
+
+    width:15%;
+
+}
+
+.colAlerta{
+
+    width:31%;
+
+}
+
+.colReposicao{
+
+    width:24%;
+
+}
+
+.rua{
+
+    background:#7f1d1d !important;
+
+    color:#fff !important;
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    padding:12px;
+
+    text-align:left;
+
+}
+
+.sku{
+
+    font-size:20px;
+
+    font-weight:bold;
+
+    margin-bottom:6px;
+
+}
+
+.descricao{
+
+    font-size:12px;
+
+    line-height:17px;
+
+}
+
+.apanha{
+
+    font-size:15px;
+
+    font-weight:bold;
+
+}
+
+.alerta{
+
+    line-height:16px;
+
+    font-size:11px;
+
+    font-weight:bold;
+
+    color:#b91c1c;
+
+}
+
+.reposicao{
+
+    text-align:left;
+
+    font-size:11px;
+
+    line-height:16px;
+
+}
+
+.reposicao .pedido-linha{
+
+    font-weight:bold;
+
+    font-size:14px;
+
+    margin-bottom:8px;
+
+}
+
+.reposicao .campo-manual{
+
+    margin-top:8px;
+
+}
+
+.reposicao .rotulo-manual{
+
+    display:block;
+
+    font-size:10px;
+
+    color:#555;
+
+    margin-bottom:3px;
+
+}
+
+.reposicao .caixa-escrever{
+
+    display:block;
+
+    height:22px;
+
+    border:1px solid #999;
+
+    border-radius:3px;
+
+    background:#fff;
+
+}
+
+@media print{
+
+    body{
+
+        zoom:100%;
+
+    }
+
+    .rua{
+
+        -webkit-print-color-adjust:exact;
+
+        print-color-adjust:exact;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>
+
+⚠️ ITENS SEM PULMÃO — VERIFICAÇÃO MANUAL
+
+</h1>
+
+<div class="cabecalho">
+
+    <div>
+
+        <b>Data:</b>
+
+        ${new Date().toLocaleString("pt-BR")}
+
+    </div>
+
+    <div>
+
+        <b>Pavilhão:</b>
+
+        ${pavilhaoFiltro || "Todos"}
+
+    </div>
+
+    <div>
+
+        <b>Total:</b>
+
+        ${dadosImpressao.length} SKUs
+
+    </div>
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th class="colSku">
+
+SKU / Descrição
+
+</th>
+
+<th class="colApanha">
+
+Apanha
+
+</th>
+
+<th class="colAlerta">
+
+Situação
+
+</th>
+
+<th class="colReposicao">
+
+Reposição
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+`;
+
+let ruaAtual = "";
+
+dadosImpressao.forEach(item=>{
+
+    const rua =
+    item.endereco.split(".")[0];
+
+    if(rua !== ruaAtual){
+
+        ruaAtual = rua;
+
+        html += `
+
+        <tr>
+
+            <td
+                colspan="4"
+                class="rua">
+
+                📍 RUA ${rua}
+
+            </td>
+
+        </tr>
+
+        `;
+
+    }
+
+    html += `
+
+    <tr>
+
+        <td>
+
+            <div class="sku">
+
+                ${item.sku}
+
+            </div>
+
+            <div class="descricao">
+
+                ${item.descricao}
+
+            </div>
+
+        </td>
+
+        <td class="apanha">
+
+            ${item.endereco}
+
+        </td>
+
+        <td class="alerta">
+
+            ⚠️ Nenhum pulmão cadastrado.<br>
+            Verificar estoque manualmente.
+
+        </td>
+
+        <td class="reposicao">
+
+            <div class="pedido-linha">Pedido: ${item.pedido}</div>
+
+            <div class="campo-manual">
+                <span class="rotulo-manual">Volume abastecido</span>
+                <span class="caixa-escrever"></span>
+            </div>
+
+            <div class="campo-manual">
+                <span class="rotulo-manual">Origem usada</span>
+                <span class="caixa-escrever"></span>
+            </div>
 
         </td>
 
