@@ -419,6 +419,139 @@ TABELA
     border-radius:var(--radius);
 }
 
+.paginacao-controles{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    flex-wrap:wrap;
+
+    gap:12px;
+
+    margin-top:16px;
+}
+
+.linhas-por-pagina{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    color:var(--text-muted);
+
+    font-size:.82rem;
+
+    font-family:var(--font-body);
+}
+
+.linhas-por-pagina select{
+
+    padding:8px 10px;
+
+    background:var(--surface-alt);
+
+    border:1px solid var(--border-light);
+
+    border-radius:var(--radius-sm);
+
+    color:var(--text);
+
+    font-size:.82rem;
+
+    font-family:var(--font-body);
+}
+
+.linhas-por-pagina select:focus{
+
+    outline:none;
+
+    border-color:var(--amber);
+}
+
+.paginas{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:4px;
+
+    flex-wrap:wrap;
+}
+
+.btn-pagina{
+
+    min-width:32px;
+
+    height:32px;
+
+    padding:0 8px;
+
+    background:var(--surface-alt);
+
+    border:1px solid var(--border-light);
+
+    border-radius:var(--radius-sm);
+
+    color:var(--text);
+
+    font-family:var(--font-mono);
+
+    font-size:.8rem;
+
+    cursor:pointer;
+
+    transition:.15s;
+}
+
+.btn-pagina:hover:not(:disabled){
+
+    border-color:var(--amber);
+
+    color:var(--amber);
+}
+
+.btn-pagina.ativo{
+
+    background:var(--amber);
+
+    border-color:var(--amber);
+
+    color:var(--bg);
+
+    font-weight:700;
+}
+
+.btn-pagina:disabled{
+
+    opacity:.35;
+
+    cursor:not-allowed;
+}
+
+.pagina-reticencias{
+
+    color:var(--text-muted);
+
+    padding:0 4px;
+
+    font-family:var(--font-mono);
+}
+
+.resumo-paginacao{
+
+    color:var(--text-muted);
+
+    font-size:.78rem;
+
+    font-family:var(--font-body);
+}
+
 table{
 
     width:100%;

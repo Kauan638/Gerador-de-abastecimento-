@@ -6,6 +6,64 @@ let dadosPedidos = [];
 let dadosPosicoes = [];
 let resultado = [];
 
+let paginaAtual = 1;
+
+// =====================================
+// CONFIGURAÇÃO DE PAVILHÕES
+// =====================================
+// O pavilhão de cada SKU é definido pela faixa de Rua (CODRUA)
+// da posição de apanha. AJUSTE as faixas abaixo conforme o
+// layout real do CD-107 — cada pavilhão é [ruaInicio, ruaFim].
+
+const PAVILHOES = [
+
+    { nome:"Pavilhão A", ruaInicio:1,   ruaFim:50  },
+    { nome:"Pavilhão B", ruaInicio:51,  ruaFim:100 },
+    { nome:"Pavilhão C", ruaInicio:101, ruaFim:150 },
+
+];
+
+function obterPavilhao(rua){
+
+    const r = Number(rua) || 0;
+
+    const encontrado =
+    PAVILHOES.find(p =>
+        r >= p.ruaInicio &&
+        r <= p.ruaFim
+    );
+
+    return encontrado
+    ? encontrado.nome
+    : "Sem Pavilhão";
+
+}
+
+function popularFiltroPavilhao(){
+
+    const select =
+    document.getElementById("filtroPavilhao");
+
+    if(!select) return;
+
+    const valorAtual = select.value;
+
+    let html = `<option value="">Todos Pavilhões</option>`;
+
+    PAVILHOES.forEach(p=>{
+
+        html += `<option value="${p.nome}">${p.nome}</option>`;
+
+    });
+
+    html += `<option value="Sem Pavilhão">Sem Pavilhão</option>`;
+
+    select.innerHTML = html;
+
+    select.value = valorAtual;
+
+}
+
 // =====================================
 // INICIALIZAÇÃO
 // =====================================
@@ -557,6 +615,9 @@ ruaApanha:Number(
 
 enderecoApanha:endereco,
 
+    pavilhao:
+    obterPavilhao(posicao?.CODRUA),
+
     saldo,
 
     norma,
@@ -597,6 +658,10 @@ console.log(
 );
     
     atualizarKPIs();
+
+    popularFiltroPavilhao();
+
+    paginaAtual = 1;
 
     renderizarTabela();
 
@@ -645,9 +710,43 @@ function renderizarTabela(
         "tbodyResultados"
     );
 
+    const selectLinhas =
+    document.getElementById(
+        "linhasPorPagina"
+    );
+
+    const linhasPorPagina =
+    selectLinhas
+    ? Number(selectLinhas.value)
+    : 50;
+
+    const totalPaginas =
+    linhasPorPagina > 0
+    ? Math.max(
+        1,
+        Math.ceil(dados.length / linhasPorPagina)
+    )
+    : 1;
+
+    if(paginaAtual > totalPaginas){
+        paginaAtual = totalPaginas;
+    }
+
+    if(paginaAtual < 1){
+        paginaAtual = 1;
+    }
+
+    const dadosPagina =
+    linhasPorPagina > 0
+    ? dados.slice(
+        (paginaAtual - 1) * linhasPorPagina,
+        paginaAtual * linhasPorPagina
+    )
+    : dados;
+
     let html = "";
 
-    dados.forEach(item=>{
+    dadosPagina.forEach(item=>{
 
         html += `
         <tr>
@@ -661,6 +760,7 @@ function renderizarTabela(
             <td>${item.norma}</td>
             <td>${item.falta}</td>
             <td>${item.status}</td>
+            <td>${item.pavilhao}</td>
             <td>${item.prioridade}</td>
 
         </tr>
@@ -668,7 +768,146 @@ function renderizarTabela(
 
     });
 
-    tbody.innerHTML = html;
+    tbody.innerHTML = html ||
+    `<tr><td colspan="11" style="text-align:center;">Nenhum resultado encontrado.</td></tr>`;
+
+    renderizarPaginacao(
+        totalPaginas,
+        dados.length,
+        linhasPorPagina
+    );
+
+}
+
+// =====================================
+// PAGINAÇÃO
+// =====================================
+
+function renderizarPaginacao(
+    totalPaginas,
+    totalItens,
+    linhasPorPagina
+){
+
+    const container =
+    document.getElementById(
+        "paginasContainer"
+    );
+
+    const resumo =
+    document.getElementById(
+        "resumoPaginacao"
+    );
+
+    if(!container) return;
+
+    if(totalItens === 0 || linhasPorPagina === 0){
+
+        container.innerHTML = "";
+
+        if(resumo){
+
+            resumo.innerText =
+            totalItens === 0
+            ? "Nenhum resultado"
+            : `Mostrando todos os ${totalItens} resultados`;
+
+        }
+
+        return;
+
+    }
+
+    // Janela de páginas exibidas ao redor da atual,
+    // com reticências para não poluir a tela quando
+    // há muitas páginas.
+
+    const janela = 2;
+
+    const paginas = [];
+
+    for(let i = 1; i <= totalPaginas; i++){
+
+        const dentroDaJanela =
+        i === 1 ||
+        i === totalPaginas ||
+        (i >= paginaAtual - janela && i <= paginaAtual + janela);
+
+        if(dentroDaJanela){
+
+            paginas.push(i);
+
+        }
+        else if(paginas[paginas.length - 1] !== "..."){
+
+            paginas.push("...");
+
+        }
+
+    }
+
+    let html = `
+    <button
+        class="btn-pagina"
+        ${paginaAtual === 1 ? "disabled" : ""}
+        onclick="irParaPagina(${paginaAtual - 1})">
+        ‹
+    </button>
+    `;
+
+    paginas.forEach(p=>{
+
+        if(p === "..."){
+
+            html += `<span class="pagina-reticencias">…</span>`;
+
+        }else{
+
+            html += `
+            <button
+                class="btn-pagina ${p === paginaAtual ? "ativo" : ""}"
+                onclick="irParaPagina(${p})">
+                ${p}
+            </button>
+            `;
+
+        }
+
+    });
+
+    html += `
+    <button
+        class="btn-pagina"
+        ${paginaAtual === totalPaginas ? "disabled" : ""}
+        onclick="irParaPagina(${paginaAtual + 1})">
+        ›
+    </button>
+    `;
+
+    container.innerHTML = html;
+
+    if(resumo){
+
+        const inicio =
+        (paginaAtual - 1) * linhasPorPagina + 1;
+
+        const fim =
+        Math.min(paginaAtual * linhasPorPagina, totalItens);
+
+        resumo.innerText =
+        `Mostrando ${inicio}–${fim} de ${totalItens}`;
+
+    }
+
+}
+
+function irParaPagina(pagina){
+
+    paginaAtual = pagina;
+
+    renderizarTabela(
+        obterResultadoFiltrado()
+    );
 
 }
 
@@ -694,6 +933,26 @@ window.addEventListener("load",()=>{
     .addEventListener(
         "change",
         aplicarFiltros
+    );
+
+    document
+    .getElementById("filtroPavilhao")
+    .addEventListener(
+        "change",
+        aplicarFiltros
+    );
+
+    document
+    .getElementById("linhasPorPagina")
+    .addEventListener(
+        "change",
+        function(){
+
+            paginaAtual = 1;
+
+            aplicarFiltros();
+
+        }
     );
 
     document
@@ -748,6 +1007,11 @@ function obterResultadoFiltrado(){
     .getElementById("filtroStatus")
     .value;
 
+    const pavilhaoFiltro =
+    document
+    .getElementById("filtroPavilhao")
+    .value;
+
     return resultado.filter(item=>{
 
         const skuOk =
@@ -764,13 +1028,22 @@ function obterResultadoFiltrado(){
             item.status ===
             statusFiltro;
 
-        return skuOk && statusOk;
+        const pavilhaoOk =
+
+            !pavilhaoFiltro ||
+
+            item.pavilhao ===
+            pavilhaoFiltro;
+
+        return skuOk && statusOk && pavilhaoOk;
 
     });
 
 }
 
 function aplicarFiltros(){
+
+    paginaAtual = 1;
 
     renderizarTabela(
         obterResultadoFiltrado()
@@ -816,6 +1089,8 @@ function exportarExcel(){
         "Falta": item.falta,
 
         "Status": item.status,
+
+        "Pavilhão": item.pavilhao,
 
         "Prioridade": item.prioridade
 
@@ -1117,15 +1392,45 @@ td{
 
 }
 
-.reposicao .abastecer-linha{
+.reposicao .pedido-linha{
 
     font-weight:bold;
 
-    font-size:13px;
+    font-size:14px;
 
-    color:#dc2626;
+    margin-bottom:8px;
 
-    margin-top:2px;
+}
+
+.reposicao .campo-manual{
+
+    margin-top:8px;
+
+}
+
+.reposicao .rotulo-manual{
+
+    display:block;
+
+    font-size:10px;
+
+    color:#555;
+
+    margin-bottom:3px;
+
+}
+
+.reposicao .caixa-escrever{
+
+    display:block;
+
+    height:22px;
+
+    border:1px solid #999;
+
+    border-radius:3px;
+
+    background:#fff;
 
 }
 
@@ -1324,15 +1629,17 @@ dadosImpressao.forEach(item=>{
 
         <td class="reposicao">
 
-            <div>Qtd pedido: ${item.pedido}</div>
+            <div class="pedido-linha">Pedido: ${item.pedido}</div>
 
-            <div>Qtd Apanha: ${item.saldo}</div>
+            <div class="campo-manual">
+                <span class="rotulo-manual">Volume abastecido</span>
+                <span class="caixa-escrever"></span>
+            </div>
 
-            <div>Norma Apanha: ${item.normaTexto}</div>
-
-            <div class="abastecer-linha">Abastecer: ${item.abastecer}</div>
-
-            <div>Falta: ${item.falta}</div>
+            <div class="campo-manual">
+                <span class="rotulo-manual">Ajuste apanha</span>
+                <span class="caixa-escrever"></span>
+            </div>
 
         </td>
 
@@ -1609,15 +1916,45 @@ td{
 
 }
 
-.reposicao .abastecer-linha{
+.reposicao .pedido-linha{
 
     font-weight:bold;
 
-    font-size:13px;
+    font-size:14px;
 
-    color:#dc2626;
+    margin-bottom:8px;
 
-    margin-top:2px;
+}
+
+.reposicao .campo-manual{
+
+    margin-top:8px;
+
+}
+
+.reposicao .rotulo-manual{
+
+    display:block;
+
+    font-size:10px;
+
+    color:#555;
+
+    margin-bottom:3px;
+
+}
+
+.reposicao .caixa-escrever{
+
+    display:block;
+
+    height:22px;
+
+    border:1px solid #999;
+
+    border-radius:3px;
+
+    background:#fff;
 
 }
 
@@ -1788,15 +2125,17 @@ dadosImpressao.forEach(item=>{
 
         <td class="reposicao">
 
-            <div>Qtd pedido: ${item.pedido}</div>
+            <div class="pedido-linha">Pedido: ${item.pedido}</div>
 
-            <div>Qtd Apanha: ${item.saldo}</div>
+            <div class="campo-manual">
+                <span class="rotulo-manual">Volume abastecido</span>
+                <span class="caixa-escrever"></span>
+            </div>
 
-            <div>Norma Apanha: ${item.normaTexto}</div>
-
-            <div class="abastecer-linha">Abastecer: ${item.abastecer}</div>
-
-            <div>Falta: ${item.falta}</div>
+            <div class="campo-manual">
+                <span class="rotulo-manual">Ajuste apanha</span>
+                <span class="caixa-escrever"></span>
+            </div>
 
         </td>
 

@@ -272,6 +272,14 @@
 
                 </select>
 
+                <select id="filtroPavilhao">
+
+                    <option value="">
+                        Todos Pavilhões
+                    </option>
+
+                </select>
+
             </div>
 
         </div>
@@ -339,6 +347,8 @@
                             <th>Falta</th>
 
                             <th>Status</th>
+
+                            <th>Pavilhão</th>
                             
                             <th>Prioridade</th>
                             
@@ -352,6 +362,29 @@
                     </tbody>
 
                 </table>
+
+            </div>
+
+            <div class="paginacao-controles">
+
+                <div class="linhas-por-pagina">
+
+                    <label for="linhasPorPagina">Linhas por página:</label>
+
+                    <select id="linhasPorPagina">
+
+                        <option value="25">25</option>
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                        <option value="0">Todas</option>
+
+                    </select>
+
+                </div>
+
+                <div class="paginas" id="paginasContainer"></div>
+
+                <div class="resumo-paginacao" id="resumoPaginacao"></div>
 
             </div>
 
