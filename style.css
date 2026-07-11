@@ -24,6 +24,8 @@
     --red-dim:       #4E2523;
     --blue:          #4C8FD1;
     --blue-dim:      #223A52;
+    --purple:        #A78BFA;
+    --purple-dim:    #3D3568;
 
     --radius:        6px;
     --radius-sm:     4px;
@@ -342,7 +344,8 @@ Cor da borda lateral = significado real do dado
 
 /* mapeamento semântico por posição dos cards no HTML:
    1 Total SKUs (neutro) / 2 Abastecer (ação) /
-   3 Unidades (ok) / 4 Sem Apanha (crítico) */
+   3 Caixas a repor (ok) / 4 Sem Apanha (crítico) /
+   5 Pedido Total (visão geral, ignora saldo) */
 
 .kpi-card:nth-child(1){ border-left-color:var(--blue); }
 .kpi-card:nth-child(1) span{ color:var(--blue); }
@@ -355,6 +358,9 @@ Cor da borda lateral = significado real do dado
 
 .kpi-card:nth-child(4){ border-left-color:var(--red); }
 .kpi-card:nth-child(4) span{ color:var(--red); }
+
+.kpi-card:nth-child(5){ border-left-color:var(--purple); }
+.kpi-card:nth-child(5) span{ color:var(--purple); }
 
 /* =========================
 FILTROS

@@ -749,6 +749,17 @@ function atualizarKPIs(){
         x=>x.status==="SEM APANHA"
     ).length;
 
+    // Pedido geral, em UNIDADES, somando TODOS os SKUs do
+    // pedido — independe de status/falta/saldo da apanha.
+    // É o volume bruto que veio no pedido, ponto.
+    document
+    .getElementById("kpiPedidoTotal")
+    .innerText =
+    resultado.reduce(
+        (s,x)=>s+(x.pedido||0),
+        0
+    ).toLocaleString("pt-BR");
+
 }
 
 
@@ -2827,6 +2838,535 @@ dadosImpressao.forEach(item=>{
                 <span class="rotulo-manual">Origem usada</span>
                 <span class="caixa-escrever"></span>
             </div>
+
+        </td>
+
+    </tr>
+
+    `;
+
+});
+
+html += `
+
+</tbody>
+
+</table>
+
+<script>
+window.PagedConfig = {
+    after: () => {
+        window.focus();
+        window.print();
+    }
+};
+</script>
+<script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
+
+</body>
+
+</html>
+
+`;
+const janela = window.open("", "_blank");
+
+if(!janela){
+
+    alert("O navegador bloqueou a janela de impressão.");
+
+    return;
+
+}
+
+janela.document.open();
+
+janela.document.write(html);
+
+janela.document.close();
+
+}
+
+// =====================================
+// IMPRIMIR PEDIDO GERAL
+// =====================================
+// Lista TODOS os SKUs do pedido, de qualquer status
+// (OK, ABASTECER, SEM APANHA) — sem descontar o saldo
+// da apanha. É a visão bruta do pedido inteiro, igual
+// ao KPI "Pedido Total (Unidades)".
+function imprimirPedidoGeral(){
+
+    const pesoStatus = {
+
+        "SEM APANHA":3,
+        "ABASTECER":2,
+        "OK":1
+
+    };
+
+    // Respeita o pavilhão selecionado em Filtros. Se estiver
+    // em "Todos Pavilhões", imprime tudo como antes.
+    const pavilhaoFiltro =
+    obterPavilhaoFiltroAtual();
+
+    const dadosImpressao =
+
+    resultado
+
+    .filter(item =>
+        !pavilhaoFiltro ||
+        item.pavilhao === pavilhaoFiltro
+    )
+
+    .sort((a,b)=>{
+
+        const ruaA =
+        Number(a.endereco.split(".")[0]) || 0;
+
+        const ruaB =
+        Number(b.endereco.split(".")[0]) || 0;
+
+        if(ruaA !== ruaB){
+
+            return ruaA - ruaB;
+
+        }
+
+        if(
+            pesoStatus[b.status] !==
+            pesoStatus[a.status]
+        ){
+
+            return pesoStatus[b.status] -
+                   pesoStatus[a.status];
+
+        }
+
+        return b.pedido - a.pedido;
+
+    });
+
+    if(!dadosImpressao.length){
+
+        alert("Nenhum SKU para imprimir (com os filtros atuais).");
+
+        return;
+
+    }
+
+    const totalPedido =
+    dadosImpressao.reduce(
+        (s,x)=>s+(x.pedido||0),
+        0
+    );
+
+    let html = `
+
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Gerador de Abastecimento PCP — Pedido Geral</title>
+
+<style>
+
+@page{
+
+    size:A4 portrait;
+
+    margin:8mm 8mm 14mm 8mm;
+
+}
+
+/* Numeração de páginas — ímpar = frente, par = verso */
+@page :right{
+
+    @bottom-center{
+        content:"Página " counter(page) " (frente)";
+        font-family:Arial,Helvetica,sans-serif;
+        font-size:9px;
+        color:#666;
+    }
+
+}
+
+@page :left{
+
+    @bottom-center{
+        content:"Página " counter(page) " (verso)";
+        font-family:Arial,Helvetica,sans-serif;
+        font-size:9px;
+        color:#666;
+    }
+
+}
+
+*{
+
+    box-sizing:border-box;
+
+}
+
+body{
+
+    font-family:Arial,Helvetica,sans-serif;
+
+    color:#222;
+
+    margin:0;
+
+    padding:0;
+
+}
+
+h1{
+
+    margin:0;
+
+    text-align:center;
+
+    color:#1e3a8a;
+
+    font-size:18px;
+
+    margin-bottom:8px;
+
+}
+
+.cabecalho{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:flex-start;
+
+    margin-bottom:8px;
+
+    font-size:12px;
+
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    table-layout:fixed;
+
+    page-break-before:auto;
+
+}
+
+
+tr{
+
+    page-break-inside:avoid;
+
+}
+
+th{
+
+    background:#2563eb;
+
+    color:white;
+
+    padding:8px;
+
+    border:1px solid #d9d9d9;
+
+    font-size:11px;
+
+}
+
+td{
+
+    border:1px solid #d9d9d9;
+
+    padding:6px 8px;
+
+    vertical-align:top;
+
+    font-size:10px;
+
+}
+
+.colSku{
+
+    width:32%;
+
+}
+
+.colNum{
+
+    width:11%;
+
+    text-align:center;
+
+}
+
+.colStatus{
+
+    width:15%;
+
+    text-align:center;
+
+}
+
+.rua{
+
+    background:#1e40af !important;
+
+    color:#fff !important;
+
+    font-size:16px;
+
+    font-weight:bold;
+
+    padding:10px;
+
+    text-align:left;
+
+}
+
+.abastecer{
+
+    background:#fff4cf;
+
+}
+
+.semapanha{
+
+    background:#ffe5e5;
+
+}
+
+.ok{
+
+    background:white;
+
+}
+
+.sku{
+
+    font-size:13px;
+
+    font-weight:bold;
+
+    margin-bottom:3px;
+
+}
+
+.descricao{
+
+    font-size:10px;
+
+    line-height:14px;
+
+    color:#444;
+
+}
+
+.status{
+
+    text-align:center;
+
+    font-size:10px;
+
+    font-weight:bold;
+}
+
+@media print{
+
+    body{
+
+        zoom:100%;
+
+    }
+
+    .rua,
+    .abastecer,
+    .semapanha{
+
+        -webkit-print-color-adjust:exact;
+
+        print-color-adjust:exact;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>
+
+📋 GERADOR DE ABASTECIMENTO PCP — PEDIDO GERAL
+
+</h1>
+
+<div class="cabecalho">
+
+    <div>
+
+        <b>Data:</b>
+
+        ${new Date().toLocaleString("pt-BR")}
+
+    </div>
+
+    <div>
+
+        <b>Pavilhão:</b>
+
+        ${pavilhaoFiltro || "Todos"}
+
+    </div>
+
+    <div>
+
+        <b>Total:</b>
+
+        ${dadosImpressao.length} SKUs — ${totalPedido.toLocaleString("pt-BR")} unidades pedidas
+
+    </div>
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th class="colSku">
+
+SKU / Descrição
+
+</th>
+
+<th class="colNum">
+
+Saldo Apanha
+
+</th>
+
+<th class="colNum">
+
+Pedido
+
+</th>
+
+<th class="colNum">
+
+Falta
+
+</th>
+
+<th class="colStatus">
+
+Status
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+`;
+
+let ruaAtual = "";
+
+dadosImpressao.forEach(item=>{
+
+    const rua =
+    item.endereco.split(".")[0];
+
+    if(rua !== ruaAtual){
+
+        ruaAtual = rua;
+
+        html += `
+
+        <tr>
+
+            <td
+                colspan="5"
+                class="rua">
+
+                📍 RUA ${rua}
+
+            </td>
+
+        </tr>
+
+        `;
+
+    }
+
+    let classe = "ok";
+
+    if(item.status === "ABASTECER"){
+
+        classe = "abastecer";
+
+    }
+    else if(item.status === "SEM APANHA"){
+
+        classe = "semapanha";
+
+    }
+
+    html += `
+
+    <tr class="${classe}">
+
+        <td>
+
+            <div class="sku">
+
+                ${item.sku}
+
+            </div>
+
+            <div class="descricao">
+
+                ${item.descricao}
+
+            </div>
+
+        </td>
+
+        <td class="colNum">
+
+            ${item.saldo}
+
+        </td>
+
+        <td class="colNum">
+
+            ${item.pedido}
+
+        </td>
+
+        <td class="colNum">
+
+            ${item.falta}
+
+        </td>
+
+        <td class="status">
+
+            ${item.status}
 
         </td>
 
