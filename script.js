@@ -1412,13 +1412,7 @@ td{
 
 .colReposicao{
 
-    width:24%;
-
-}
-
-.colPrioridade{
-
-    width:13%;
+    width:37%;
 
 }
 
@@ -1540,16 +1534,6 @@ td{
 
 }
 
-.prioridade{
-
-    text-align:center;
-
-    font-size:14px;
-
-    font-weight:bold;
-
-}
-
 @media print{
 
     body{
@@ -1637,12 +1621,6 @@ Pulmões
 <th class="colReposicao">
 
 Reposição
-
-</th>
-
-<th class="colPrioridade">
-
-Prioridade
 
 </th>
 
@@ -1754,12 +1732,6 @@ dadosImpressao.forEach(item=>{
                 <span class="rotulo-manual">Ajuste apanha</span>
                 <span class="caixa-escrever"></span>
             </div>
-
-        </td>
-
-        <td class="prioridade">
-
-            ${item.prioridade}
 
         </td>
 
@@ -1995,13 +1967,7 @@ td{
 
 .colReposicao{
 
-    width:24%;
-
-}
-
-.colPrioridade{
-
-    width:13%;
+    width:37%;
 
 }
 
@@ -2107,16 +2073,6 @@ td{
 
 }
 
-.prioridade{
-
-    text-align:center;
-
-    font-size:14px;
-
-    font-weight:bold;
-
-}
-
 @media print{
 
     body{
@@ -2206,12 +2162,6 @@ Reposição
 
 </th>
 
-<th class="colPrioridade">
-
-Prioridade
-
-</th>
-
 </tr>
 
 </thead>
@@ -2293,12 +2243,6 @@ dadosImpressao.forEach(item=>{
                 <span class="rotulo-manual">Ajuste apanha</span>
                 <span class="caixa-escrever"></span>
             </div>
-
-        </td>
-
-        <td class="prioridade">
-
-            ${item.prioridade}
 
         </td>
 
@@ -3082,13 +3026,7 @@ td{
 
 .colReposicao{
 
-    width:24%;
-
-}
-
-.colPrioridade{
-
-    width:13%;
+    width:37%;
 
 }
 
@@ -3194,16 +3132,6 @@ td{
 
 }
 
-.prioridade{
-
-    text-align:center;
-
-    font-size:14px;
-
-    font-weight:bold;
-
-}
-
 @media print{
 
     body{
@@ -3293,12 +3221,6 @@ Reposição
 
 </th>
 
-<th class="colPrioridade">
-
-Prioridade
-
-</th>
-
 </tr>
 
 </thead>
@@ -3380,12 +3302,6 @@ dadosImpressao.forEach(item=>{
                 <span class="rotulo-manual">Ajuste apanha</span>
                 <span class="caixa-escrever"></span>
             </div>
-
-        </td>
-
-        <td class="prioridade">
-
-            ${item.prioridade}
 
         </td>
 
