@@ -2895,14 +2895,6 @@ janela.document.close();
 // ao KPI "Pedido Total (Unidades)".
 function imprimirPedidoGeral(){
 
-    const pesoStatus = {
-
-        "SEM APANHA":3,
-        "ABASTECER":2,
-        "OK":1
-
-    };
-
     // Respeita o pavilhão selecionado em Filtros. Se estiver
     // em "Todos Pavilhões", imprime tudo como antes.
     const pavilhaoFiltro =
@@ -2931,17 +2923,9 @@ function imprimirPedidoGeral(){
 
         }
 
-        if(
-            pesoStatus[b.status] !==
-            pesoStatus[a.status]
-        ){
-
-            return pesoStatus[b.status] -
-                   pesoStatus[a.status];
-
-        }
-
-        return b.pedido - a.pedido;
+        // Dentro da mesma rua: sempre por volume (falta),
+        // maior para menor — sem priorizar por status.
+        return (b.falta||0) - (a.falta||0);
 
     });
 
