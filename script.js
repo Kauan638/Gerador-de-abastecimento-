@@ -2909,25 +2909,8 @@ function imprimirPedidoGeral(){
         item.pavilhao === pavilhaoFiltro
     )
 
-    .sort((a,b)=>{
-
-        const ruaA =
-        Number(a.endereco.split(".")[0]) || 0;
-
-        const ruaB =
-        Number(b.endereco.split(".")[0]) || 0;
-
-        if(ruaA !== ruaB){
-
-            return ruaA - ruaB;
-
-        }
-
-        // Dentro da mesma rua: sempre por volume (falta),
-        // maior para menor — sem priorizar por status.
-        return (b.falta||0) - (a.falta||0);
-
-    });
+    // Sempre por quantidade pedida, do maior para o menor.
+    .sort((a,b)=> (b.pedido||0) - (a.pedido||0));
 
     if(!dadosImpressao.length){
 
@@ -3059,11 +3042,11 @@ th{
 
     color:white;
 
-    padding:8px;
+    padding:10px;
 
     border:1px solid #d9d9d9;
 
-    font-size:11px;
+    font-size:12px;
 
 }
 
@@ -3071,65 +3054,57 @@ td{
 
     border:1px solid #d9d9d9;
 
-    padding:6px 8px;
+    padding:8px;
 
     vertical-align:top;
 
-    font-size:10px;
+    font-size:11px;
 
 }
 
 .colSku{
 
-    width:32%;
+    width:26%;
 
 }
 
-.colNum{
+.colApanha{
 
-    width:11%;
-
-    text-align:center;
+    width:13%;
 
 }
 
-.colStatus{
+.colPulmao{
 
-    width:15%;
-
-    text-align:center;
+    width:24%;
 
 }
 
-.rua{
+.colReposicao{
 
-    background:#1e40af !important;
-
-    color:#fff !important;
-
-    font-size:16px;
-
-    font-weight:bold;
-
-    padding:10px;
-
-    text-align:left;
+    width:24%;
 
 }
 
-.abastecer{
+.colPrioridade{
 
-    background:#fff4cf;
+    width:13%;
 
 }
 
-.semapanha{
+.critico{
 
     background:#ffe5e5;
 
 }
 
-.ok{
+.alta{
+
+    background:#fff4cf;
+
+}
+
+.normal{
 
     background:white;
 
@@ -3137,31 +3112,96 @@ td{
 
 .sku{
 
-    font-size:13px;
+    font-size:20px;
 
     font-weight:bold;
 
-    margin-bottom:3px;
+    margin-bottom:6px;
 
 }
 
 .descricao{
 
-    font-size:10px;
+    font-size:12px;
 
-    line-height:14px;
-
-    color:#444;
+    line-height:17px;
 
 }
 
-.status{
+.apanha{
 
-    text-align:center;
+    font-size:15px;
+
+    font-weight:bold;
+
+}
+
+.pulmao{
+
+    line-height:18px;
+
+}
+
+.reposicao{
+
+    text-align:left;
+
+    font-size:11px;
+
+    line-height:16px;
+
+}
+
+.reposicao .pedido-linha{
+
+    font-weight:bold;
+
+    font-size:14px;
+
+    margin-bottom:8px;
+
+}
+
+.reposicao .campo-manual{
+
+    margin-top:8px;
+
+}
+
+.reposicao .rotulo-manual{
+
+    display:block;
 
     font-size:10px;
 
+    color:#555;
+
+    margin-bottom:3px;
+
+}
+
+.reposicao .caixa-escrever{
+
+    display:block;
+
+    height:22px;
+
+    border:1px solid #999;
+
+    border-radius:3px;
+
+    background:#fff;
+
+}
+
+.prioridade{
+
+    text-align:center;
+
+    font-size:14px;
+
     font-weight:bold;
+
 }
 
 @media print{
@@ -3172,9 +3212,8 @@ td{
 
     }
 
-    .rua,
-    .abastecer,
-    .semapanha{
+    .critico,
+    .alta{
 
         -webkit-print-color-adjust:exact;
 
@@ -3236,27 +3275,27 @@ SKU / Descrição
 
 </th>
 
-<th class="colNum">
+<th class="colApanha">
 
-Saldo Apanha
-
-</th>
-
-<th class="colNum">
-
-Pedido
+Apanha
 
 </th>
 
-<th class="colNum">
+<th class="colPulmao">
 
-Falta
+Pulmões
 
 </th>
 
-<th class="colStatus">
+<th class="colReposicao">
 
-Status
+Reposição
+
+</th>
+
+<th class="colPrioridade">
+
+Prioridade
 
 </th>
 
@@ -3268,47 +3307,33 @@ Status
 
 `;
 
-let ruaAtual = "";
-
 dadosImpressao.forEach(item=>{
 
-    const rua =
-    item.endereco.split(".")[0];
+    let classe = "normal";
 
-    if(rua !== ruaAtual){
+    if(item.prioridade === "🔴 CRÍTICO"){
 
-        ruaAtual = rua;
+        classe = "critico";
 
-        html += `
+    }
+    else if(item.prioridade === "🟠 ALTA"){
 
-        <tr>
-
-            <td
-                colspan="5"
-                class="rua">
-
-                📍 RUA ${rua}
-
-            </td>
-
-        </tr>
-
-        `;
+        classe = "alta";
 
     }
 
-    let classe = "ok";
+    let pulmoes =
+    item.pulmao;
 
-    if(item.status === "ABASTECER"){
+    pulmoes =
 
-        classe = "abastecer";
+    pulmoes
 
-    }
-    else if(item.status === "SEM APANHA"){
+    .replace(/\s*\|\s*/g,"<br>• ")
 
-        classe = "semapanha";
+    .replace(/^/,"• ")
 
-    }
+    .replace("<br>• (+","<br><b>(+");
 
     html += `
 
@@ -3330,27 +3355,37 @@ dadosImpressao.forEach(item=>{
 
         </td>
 
-        <td class="colNum">
+        <td class="apanha">
 
-            ${item.saldo}
-
-        </td>
-
-        <td class="colNum">
-
-            ${item.pedido}
+            ${item.endereco}
 
         </td>
 
-        <td class="colNum">
+        <td class="pulmao">
 
-            ${item.falta}
+            ${pulmoes}
 
         </td>
 
-        <td class="status">
+        <td class="reposicao">
 
-            ${item.status}
+            <div class="pedido-linha">Pedido: ${item.pedido}</div>
+
+            <div class="campo-manual">
+                <span class="rotulo-manual">Volume abastecido</span>
+                <span class="caixa-escrever"></span>
+            </div>
+
+            <div class="campo-manual">
+                <span class="rotulo-manual">Ajuste apanha</span>
+                <span class="caixa-escrever"></span>
+            </div>
+
+        </td>
+
+        <td class="prioridade">
+
+            ${item.prioridade}
 
         </td>
 
