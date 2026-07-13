@@ -284,13 +284,26 @@
 
                 </select>
 
-                <select id="filtroPavilhao">
+                <div class="filtro-pavilhao-multi" id="filtroPavilhaoMulti">
 
-                    <option value="">
-                        Todos Pavilhões
-                    </option>
+                    <button
+                        type="button"
+                        class="filtro-pavilhao-btn"
+                        id="filtroPavilhaoBtn"
+                        onclick="togglePavilhaoDropdown()">
 
-                </select>
+                        <span id="filtroPavilhaoLabel">Todos Pavilhões</span>
+                        <span class="filtro-pavilhao-seta">▾</span>
+
+                    </button>
+
+                    <div
+                        class="filtro-pavilhao-opcoes"
+                        id="filtroPavilhaoOpcoes"
+                        style="display:none;">
+                    </div>
+
+                </div>
 
             </div>
 

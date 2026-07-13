@@ -70,26 +70,194 @@ function obterPavilhao(rua){
 
 function popularFiltroPavilhao(){
 
-    const select =
-    document.getElementById("filtroPavilhao");
+    const opcoes =
+    document.getElementById("filtroPavilhaoOpcoes");
 
-    if(!select) return;
+    if(!opcoes) return;
 
-    const valorAtual = select.value;
+    const nomes =
+    PAVILHOES
+    .map(p => p.nome)
+    .concat(["Sem Pavilhão"]);
 
-    let html = `<option value="">Todos Pavilhões</option>`;
+    let html = `
+    <label class="filtro-pavilhao-item filtro-pavilhao-todos">
+        <input
+            type="checkbox"
+            id="filtroPavilhaoTodos"
+            checked
+            onchange="alternarTodosPavilhoes(this)">
+        Todos Pavilhões
+    </label>
+    <div class="filtro-pavilhao-separador"></div>
+    `;
 
-    PAVILHOES.forEach(p=>{
+    nomes.forEach(nome=>{
 
-        html += `<option value="${p.nome}">${p.nome}</option>`;
+        html += `
+        <label class="filtro-pavilhao-item">
+            <input
+                type="checkbox"
+                class="filtroPavilhaoItem"
+                value="${nome}"
+                checked
+                onchange="atualizarSelecaoPavilhoes()">
+            ${nome}
+        </label>
+        `;
 
     });
 
-    html += `<option value="Sem Pavilhão">Sem Pavilhão</option>`;
+    opcoes.innerHTML = html;
 
-    select.innerHTML = html;
+    atualizarLabelPavilhao();
 
-    select.value = valorAtual;
+}
+
+function togglePavilhaoDropdown(){
+
+    const opcoes =
+    document.getElementById("filtroPavilhaoOpcoes");
+
+    if(!opcoes) return;
+
+    opcoes.style.display =
+    opcoes.style.display === "none"
+    ? "block"
+    : "none";
+
+}
+
+document.addEventListener("click", function(e){
+
+    const container =
+    document.getElementById("filtroPavilhaoMulti");
+
+    const opcoes =
+    document.getElementById("filtroPavilhaoOpcoes");
+
+    if(!container || !opcoes) return;
+
+    if(!container.contains(e.target)){
+
+        opcoes.style.display = "none";
+
+    }
+
+});
+
+function alternarTodosPavilhoes(chkTodos){
+
+    document
+    .querySelectorAll(".filtroPavilhaoItem")
+    .forEach(chk=>{
+
+        chk.checked = chkTodos.checked;
+
+    });
+
+    atualizarLabelPavilhao();
+
+    if(typeof aplicarFiltros === "function"){
+
+        aplicarFiltros();
+
+    }
+
+}
+
+function atualizarSelecaoPavilhoes(){
+
+    const itens =
+    document.querySelectorAll(".filtroPavilhaoItem");
+
+    const chkTodos =
+    document.getElementById("filtroPavilhaoTodos");
+
+    const todosMarcados =
+    Array.from(itens)
+    .every(chk => chk.checked);
+
+    if(chkTodos){
+
+        chkTodos.checked = todosMarcados;
+
+    }
+
+    atualizarLabelPavilhao();
+
+    if(typeof aplicarFiltros === "function"){
+
+        aplicarFiltros();
+
+    }
+
+}
+
+function atualizarLabelPavilhao(){
+
+    const label =
+    document.getElementById("filtroPavilhaoLabel");
+
+    if(!label) return;
+
+    const itens =
+    Array.from(
+        document.querySelectorAll(".filtroPavilhaoItem")
+    );
+
+    const marcados =
+    itens.filter(chk => chk.checked);
+
+    if(marcados.length === 0){
+
+        label.innerText = "Nenhum Pavilhão";
+
+    }
+    else if(marcados.length === itens.length){
+
+        label.innerText = "Todos Pavilhões";
+
+    }
+    else{
+
+        label.innerText =
+        marcados
+        .map(chk => chk.value)
+        .join(", ");
+
+    }
+
+}
+
+// Retorna a lista de pavilhões marcados. Array vazio (itens
+// totalmente desmarcados) significa "nada selecionado" — os
+// chamadores devem tratar isso como filtro vazio de resultado.
+// Quando TODOS estão marcados, retorna [] (equivalente a "sem
+// filtro", mesmo comportamento de antes com "Todos Pavilhões").
+function obterPavilhoesFiltroAtual(){
+
+    const itens =
+    Array.from(
+        document.querySelectorAll(".filtroPavilhaoItem")
+    );
+
+    if(!itens.length){
+
+        return [];
+
+    }
+
+    const marcados =
+    itens.filter(chk => chk.checked);
+
+    if(marcados.length === itens.length){
+
+        return []; // todos marcados = sem filtro
+
+    }
+
+    return marcados.map(chk => chk.value);
 
 }
 
@@ -1055,17 +1223,6 @@ window.addEventListener("load",()=>{
 
 });
 
-function obterPavilhaoFiltroAtual(){
-
-    const select =
-    document.getElementById("filtroPavilhao");
-
-    return select
-    ? select.value
-    : "";
-
-}
-
 function obterResultadoFiltrado(){
 
     const skuFiltro =
@@ -1080,10 +1237,8 @@ function obterResultadoFiltrado(){
     .getElementById("filtroStatus")
     .value;
 
-    const pavilhaoFiltro =
-    document
-    .getElementById("filtroPavilhao")
-    .value;
+    const pavilhoesFiltro =
+    obterPavilhoesFiltroAtual();
 
     return resultado.filter(item=>{
 
@@ -1103,10 +1258,9 @@ function obterResultadoFiltrado(){
 
         const pavilhaoOk =
 
-            !pavilhaoFiltro ||
+            !pavilhoesFiltro.length ||
 
-            item.pavilhao ===
-            pavilhaoFiltro;
+            pavilhoesFiltro.includes(item.pavilhao);
 
         return skuOk && statusOk && pavilhaoOk;
 
@@ -1207,8 +1361,8 @@ function imprimirAbastecimento(){
 
     // Respeita o pavilhão selecionado em Filtros. Se estiver
     // em "Todos Pavilhões", imprime tudo como antes.
-    const pavilhaoFiltro =
-    obterPavilhaoFiltroAtual();
+    const pavilhoesFiltro =
+    obterPavilhoesFiltroAtual();
 
     const dadosImpressao =
 
@@ -1217,8 +1371,8 @@ function imprimirAbastecimento(){
     .filter(item => item.status === "ABASTECER")
 
     .filter(item =>
-        !pavilhaoFiltro ||
-        item.pavilhao === pavilhaoFiltro
+        !pavilhoesFiltro.length ||
+        pavilhoesFiltro.includes(item.pavilhao)
     )
 
     // Só entram na impressão itens que têm pelo menos
@@ -1580,7 +1734,7 @@ td{
 
         <b>Pavilhão:</b>
 
-        ${pavilhaoFiltro || "Todos"}
+        ${pavilhoesFiltro.length ? pavilhoesFiltro.join(", ") : "Todos"}
 
     </div>
 
@@ -1791,8 +1945,8 @@ function imprimirAbastecimentoPorVolume(){
 
     // Respeita o pavilhão selecionado em Filtros. Se estiver
     // em "Todos Pavilhões", imprime tudo como antes.
-    const pavilhaoFiltro =
-    obterPavilhaoFiltroAtual();
+    const pavilhoesFiltro =
+    obterPavilhoesFiltroAtual();
 
     const dadosImpressao =
 
@@ -1801,8 +1955,8 @@ function imprimirAbastecimentoPorVolume(){
     .filter(item => item.status === "ABASTECER")
 
     .filter(item =>
-        !pavilhaoFiltro ||
-        item.pavilhao === pavilhaoFiltro
+        !pavilhoesFiltro.length ||
+        pavilhoesFiltro.includes(item.pavilhao)
     )
 
     // Mesma regra da impressão por rua: só entram
@@ -2118,7 +2272,7 @@ td{
 
         <b>Pavilhão:</b>
 
-        ${pavilhaoFiltro || "Todos"}
+        ${pavilhoesFiltro.length ? pavilhoesFiltro.join(", ") : "Todos"}
 
     </div>
 
@@ -2303,8 +2457,8 @@ function imprimirSemPulmao(){
 
     // Respeita o pavilhão selecionado em Filtros. Se estiver
     // em "Todos Pavilhões", imprime tudo como antes.
-    const pavilhaoFiltro =
-    obterPavilhaoFiltroAtual();
+    const pavilhoesFiltro =
+    obterPavilhoesFiltroAtual();
 
     const dadosImpressao =
 
@@ -2315,8 +2469,8 @@ function imprimirSemPulmao(){
     .filter(item => item.pulmao === "Sem Pulmão")
 
     .filter(item =>
-        !pavilhaoFiltro ||
-        item.pavilhao === pavilhaoFiltro
+        !pavilhoesFiltro.length ||
+        pavilhoesFiltro.includes(item.pavilhao)
     )
 
     .sort((a,b)=>{
@@ -2655,7 +2809,7 @@ td{
 
         <b>Pavilhão:</b>
 
-        ${pavilhaoFiltro || "Todos"}
+        ${pavilhoesFiltro.length ? pavilhoesFiltro.join(", ") : "Todos"}
 
     </div>
 
@@ -2841,16 +2995,16 @@ function imprimirPedidoGeral(){
 
     // Respeita o pavilhão selecionado em Filtros. Se estiver
     // em "Todos Pavilhões", imprime tudo como antes.
-    const pavilhaoFiltro =
-    obterPavilhaoFiltroAtual();
+    const pavilhoesFiltro =
+    obterPavilhoesFiltroAtual();
 
     const dadosImpressao =
 
     resultado
 
     .filter(item =>
-        !pavilhaoFiltro ||
-        item.pavilhao === pavilhaoFiltro
+        !pavilhoesFiltro.length ||
+        pavilhoesFiltro.includes(item.pavilhao)
     )
 
     // Sempre por quantidade pedida, do maior para o menor.
@@ -3177,7 +3331,7 @@ td{
 
         <b>Pavilhão:</b>
 
-        ${pavilhaoFiltro || "Todos"}
+        ${pavilhoesFiltro.length ? pavilhoesFiltro.join(", ") : "Todos"}
 
     </div>
 
