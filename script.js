@@ -917,15 +917,18 @@ function atualizarKPIs(){
         x=>x.status==="SEM APANHA"
     ).length;
 
-    // Pedido geral, em UNIDADES, somando TODOS os SKUs do
+    // Pedido geral, em CAIXAS, somando TODOS os SKUs do
     // pedido — independe de status/falta/saldo da apanha.
-    // É o volume bruto que veio no pedido, ponto.
+    // É o volume bruto que veio no pedido (convertido pela
+    // embalagem de cada SKU), ponto.
     document
     .getElementById("kpiPedidoTotal")
     .innerText =
-    resultado.reduce(
-        (s,x)=>s+(x.pedido||0),
-        0
+    Math.round(
+        resultado.reduce(
+            (s,x)=>s+(x.caixasPedido||0),
+            0
+        )
     ).toLocaleString("pt-BR");
 
 }
@@ -1633,7 +1636,7 @@ td{
 
     display:block;
 
-    height:36px;
+    height:28px;
 
     border:1.5px solid #888;
 
@@ -2211,7 +2214,7 @@ td{
 
     display:block;
 
-    height:36px;
+    height:28px;
 
     border:1.5px solid #888;
 
@@ -2772,7 +2775,7 @@ td{
 
     display:block;
 
-    height:36px;
+    height:28px;
 
     border:1.5px solid #888;
 
