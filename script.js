@@ -1348,598 +1348,11 @@ function exportarExcel(){
 }
 
 
-function imprimirAbastecimento(){
-
-    const peso = {
-
-        "🔴 CRÍTICO":3,
-        "🟠 ALTA":2,
-        "🟡 NORMAL":1,
-        "🟢 OK":0
-
-    };
-
-    // Respeita o pavilhão selecionado em Filtros. Se estiver
-    // em "Todos Pavilhões", imprime tudo como antes.
-    const pavilhoesFiltro =
-    obterPavilhoesFiltroAtual();
-
-    const dadosImpressao =
-
-    resultado
-
-    .filter(item => item.status === "ABASTECER")
-
-    .filter(item =>
-        !pavilhoesFiltro.length ||
-        pavilhoesFiltro.includes(item.pavilhao)
-    )
-
-    // Só entram na impressão itens que têm pelo menos
-    // um endereço de pulmão cadastrado. Itens "Sem Pulmão"
-    // continuam existindo no resultado/tela normal, só não
-    // aparecem nesta lista impressa, já que não há de onde
-    // buscar o produto para abastecer a apanha.
-    .filter(item => item.pulmao !== "Sem Pulmão")
-
-    .sort((a,b)=>{
-
-        const ruaA =
-        Number(a.endereco.split(".")[0]) || 0;
-
-        const ruaB =
-        Number(b.endereco.split(".")[0]) || 0;
-
-        if(ruaA !== ruaB){
-
-            return ruaA - ruaB;
-
-        }
-
-        if(
-            peso[b.prioridade] !==
-            peso[a.prioridade]
-        ){
-
-            return peso[b.prioridade] -
-                   peso[a.prioridade];
-
-        }
-
-        return b.falta - a.falta;
-
-    });
-
-    let html = `
-
-<!DOCTYPE html>
-
-<html lang="pt-BR">
-
-<head>
-
-<meta charset="UTF-8">
-
-<title>Gerador de Abastecimento PCP</title>
-
-<style>
-
-@page{
-
-    size:A4 portrait;
-
-    margin:8mm 8mm 14mm 8mm;
-
-}
-
-/* Numeração de páginas — ímpar = frente, par = verso */
-@page :right{
-
-    @bottom-center{
-        content:"Página " counter(page) " (frente)";
-        font-family:Arial,Helvetica,sans-serif;
-        font-size:9px;
-        color:#666;
-    }
-
-}
-
-@page :left{
-
-    @bottom-center{
-        content:"Página " counter(page) " (verso)";
-        font-family:Arial,Helvetica,sans-serif;
-        font-size:9px;
-        color:#666;
-    }
-
-}
-
-*{
-
-    box-sizing:border-box;
-
-}
-
-body{
-
-    font-family:Arial,Helvetica,sans-serif;
-
-    color:#222;
-
-    margin:0;
-
-    padding:0;
-
-}
-
-h1{
-
-    margin:0;
-
-    text-align:center;
-
-    color:#1e3a8a;
-
-    font-size:18px;
-
-    margin-bottom:8px;
-
-}
-
-.cabecalho{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:flex-start;
-
-    margin-bottom:8px;
-
-    font-size:12px;
-
-}
-
-table{
-
-    width:100%;
-
-    border-collapse:collapse;
-
-    table-layout:fixed;
-
-    page-break-before:auto;
-
-}
-
-
-tr{
-
-    page-break-inside:avoid;
-
-}
-
-th{
-
-    background:#2563eb;
-
-    color:white;
-
-    padding:10px;
-
-    border:1px solid #d9d9d9;
-
-    font-size:12px;
-
-}
-
-td{
-
-    border:1px solid #d9d9d9;
-
-    padding:8px;
-
-    vertical-align:top;
-
-    font-size:11px;
-
-}
-
-.colSku{
-
-    width:26%;
-
-}
-
-.colApanha{
-
-    width:13%;
-
-}
-
-.colPulmao{
-
-    width:24%;
-
-}
-
-.colReposicao{
-
-    width:37%;
-
-}
-
-.rua{
-
-    background:#1e40af !important;
-
-    color:#fff !important;
-
-    font-size:18px;
-
-    font-weight:bold;
-
-    padding:12px;
-
-    text-align:left;
-
-}
-
-.critico{
-
-    background:#ffe5e5;
-
-}
-
-.alta{
-
-    background:#fff4cf;
-
-}
-
-.normal{
-
-    background:white;
-
-}
-
-.sku{
-
-    font-size:20px;
-
-    font-weight:bold;
-
-    margin-bottom:6px;
-
-}
-
-.descricao{
-
-    font-size:12px;
-
-    line-height:17px;
-
-}
-
-.apanha{
-
-    font-size:15px;
-
-    font-weight:bold;
-
-}
-
-.pulmao{
-
-    line-height:18px;
-
-}
-
-.reposicao{
-
-    text-align:left;
-
-    font-size:11px;
-
-    line-height:16px;
-
-}
-
-.reposicao .pedido-linha{
-
-    font-weight:bold;
-
-    font-size:14px;
-
-    margin-bottom:8px;
-
-}
-
-.reposicao .campo-manual{
-
-    margin-top:8px;
-
-}
-
-.reposicao .rotulo-manual{
-
-    display:block;
-
-    font-size:10px;
-
-    color:#555;
-
-    margin-bottom:3px;
-
-}
-
-.reposicao .caixa-escrever{
-
-    display:block;
-
-    height:22px;
-
-    border:1px solid #999;
-
-    border-radius:3px;
-
-    background:#fff;
-
-}
-
-@media print{
-
-    body{
-
-        zoom:100%;
-
-    }
-
-    .rua,
-    .critico,
-    .alta{
-
-        -webkit-print-color-adjust:exact;
-
-        print-color-adjust:exact;
-
-    }
-
-}
-
-</style>
-
-</head>
-
-<body>
-
-<h1>
-
-🚚 GERADOR DE ABASTECIMENTO PCP
-
-</h1>
-
-<div class="cabecalho">
-
-    <div>
-
-        <b>Data:</b>
-
-        ${new Date().toLocaleString("pt-BR")}
-
-    </div>
-
-    <div>
-
-        <b>Pavilhão:</b>
-
-        ${pavilhoesFiltro.length ? pavilhoesFiltro.join(", ") : "Todos"}
-
-    </div>
-
-    <div>
-
-        <b>Total:</b>
-
-        ${dadosImpressao.length} SKUs
-
-    </div>
-
-</div>
-
-<table>
-
-<thead>
-
-<tr>
-
-<th class="colSku">
-
-SKU / Descrição
-
-</th>
-
-<th class="colApanha">
-
-Apanha
-
-</th>
-
-<th class="colPulmao">
-
-Pulmões
-
-</th>
-
-<th class="colReposicao">
-
-Reposição
-
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-`;
-
-let ruaAtual = "";
-
-dadosImpressao.forEach(item=>{
-
-    const rua =
-    item.endereco.split(".")[0];
-
-    if(rua !== ruaAtual){
-
-        ruaAtual = rua;
-
-        html += `
-
-        <tr>
-
-            <td
-                colspan="5"
-                class="rua">
-
-                📍 RUA ${rua}
-
-            </td>
-
-        </tr>
-
-        `;
-
-    }
-
-    let classe = "normal";
-
-    if(item.prioridade === "🔴 CRÍTICO"){
-
-        classe = "critico";
-
-    }
-    else if(item.prioridade === "🟠 ALTA"){
-
-        classe = "alta";
-
-    }
-
-    let pulmoes =
-    item.pulmao;
-
-    pulmoes =
-
-    pulmoes
-
-    .replace(/\s*\|\s*/g,"<br>• ")
-
-    .replace(/^/,"• ")
-
-    .replace("<br>• (+","<br><b>(+");
-
-    html += `
-
-    <tr class="${classe}">
-
-        <td>
-
-            <div class="sku">
-
-                ${item.sku}
-
-            </div>
-
-            <div class="descricao">
-
-                ${item.descricao}
-
-            </div>
-
-        </td>
-
-        <td class="apanha">
-
-            ${item.endereco}
-
-        </td>
-
-        <td class="pulmao">
-
-            ${pulmoes}
-
-        </td>
-
-        <td class="reposicao">
-
-            <div class="pedido-linha">Pedido: ${item.pedido}</div>
-
-            <div class="campo-manual">
-                <span class="rotulo-manual">Volume abastecido</span>
-                <span class="caixa-escrever"></span>
-            </div>
-
-            <div class="campo-manual">
-                <span class="rotulo-manual">Ajuste apanha</span>
-                <span class="caixa-escrever"></span>
-            </div>
-
-        </td>
-
-    </tr>
-
-    `;
-
-});
-
-html += `
-
-</tbody>
-
-</table>
-
-<script>
-window.PagedConfig = {
-    after: () => {
-        window.focus();
-        window.print();
-    }
-};
-</script>
-<script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
-
-</body>
-
-</html>
-
-`;
-const janela = window.open("", "_blank");
-
-if(!janela){
-
-    alert("O navegador bloqueou a janela de impressão.");
-
-    return;
-
-}
-
-janela.document.open();
-
-janela.document.write(html);
-
-janela.document.close();
-
-}
-
 // =====================================
-// IMPRIMIR CRÍTICOS POR VOLUME FALTANTE
+// IMPRIMIR POR VOLUME (PEDIDO)
 // =====================================
-// Mesma lista de itens da impressão por rua,
-// porém ordenada apenas pelo volume que falta
-// (campo "falta"), do maior para o menor,
+// Lista todos os itens a abastecer ordenados pelo
+// volume do Pedido, sempre do maior para o menor,
 // sem agrupar por rua ou qualquer outro critério.
 function imprimirAbastecimentoPorVolume(){
 
@@ -1963,7 +1376,10 @@ function imprimirAbastecimentoPorVolume(){
     // itens que possuem pulmão cadastrado.
     .filter(item => item.pulmao !== "Sem Pulmão")
 
-    .sort((a,b)=> b.falta - a.falta);
+    // Sempre pelo Pedido (o número que aparece impresso),
+    // do maior para o menor — nunca pelo saldo faltante,
+    // que pode divergir do Pedido e confundir o operador.
+    .sort((a,b)=> (b.pedido||0) - (a.pedido||0));
 
     let html = `
 
@@ -2217,13 +1633,61 @@ td{
 
     display:block;
 
-    height:22px;
+    height:36px;
 
-    border:1px solid #999;
+    border:1.5px solid #888;
 
-    border-radius:3px;
+    border-radius:4px;
 
     background:#fff;
+
+}
+
+.titulo-pagina th{
+
+    background:#fff !important;
+
+    color:#1e3a8a;
+
+    border:none;
+
+    padding:2px 0 8px 0;
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    text-align:center;
+
+}
+
+.meta-pagina th{
+
+    background:#fff !important;
+
+    color:#222;
+
+    border:none;
+
+    border-bottom:2px solid #2563eb;
+
+    padding:0 0 8px 0;
+
+    font-size:12px;
+
+    font-weight:normal;
+
+    text-align:left;
+
+}
+
+.meta-pagina .cabecalho{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:flex-start;
 
 }
 
@@ -2236,7 +1700,9 @@ td{
     }
 
     .critico,
-    .alta{
+    .alta,
+    .titulo-pagina th,
+    .meta-pagina th{
 
         -webkit-print-color-adjust:exact;
 
@@ -2252,43 +1718,33 @@ td{
 
 <body>
 
-<h1>
-
-🚚 GERADOR DE ABASTECIMENTO PCP — POR VOLUME FALTANTE
-
-</h1>
-
-<div class="cabecalho">
-
-    <div>
-
-        <b>Data:</b>
-
-        ${new Date().toLocaleString("pt-BR")}
-
-    </div>
-
-    <div>
-
-        <b>Pavilhão:</b>
-
-        ${pavilhoesFiltro.length ? pavilhoesFiltro.join(", ") : "Todos"}
-
-    </div>
-
-    <div>
-
-        <b>Total:</b>
-
-        ${dadosImpressao.length} SKUs
-
-    </div>
-
-</div>
-
 <table>
 
 <thead>
+
+<tr class="titulo-pagina">
+
+<th colspan="4">🚚 GERADOR DE ABASTECIMENTO PCP — POR VOLUME FALTANTE</th>
+
+</tr>
+
+<tr class="meta-pagina">
+
+<th colspan="4">
+
+    <div class="cabecalho">
+
+        <div><b>Data:</b> ${new Date().toLocaleString("pt-BR")}</div>
+
+        <div><b>Pavilhão:</b> ${pavilhoesFiltro.length ? pavilhoesFiltro.join(", ") : "Todos"}</div>
+
+        <div><b>Total:</b> ${dadosImpressao.length} SKUs</div>
+
+    </div>
+
+</th>
+
+</tr>
 
 <tr>
 
@@ -2487,7 +1943,7 @@ function imprimirSemPulmao(){
 
         }
 
-        return b.falta - a.falta;
+        return (b.pedido||0) - (a.pedido||0);
 
     });
 
@@ -2755,13 +2211,61 @@ td{
 
     display:block;
 
-    height:22px;
+    height:36px;
 
-    border:1px solid #999;
+    border:1.5px solid #888;
 
-    border-radius:3px;
+    border-radius:4px;
 
     background:#fff;
+
+}
+
+.titulo-pagina th{
+
+    background:#fff !important;
+
+    color:#b91c1c;
+
+    border:none;
+
+    padding:2px 0 8px 0;
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    text-align:center;
+
+}
+
+.meta-pagina th{
+
+    background:#fff !important;
+
+    color:#222;
+
+    border:none;
+
+    border-bottom:2px solid #b91c1c;
+
+    padding:0 0 8px 0;
+
+    font-size:12px;
+
+    font-weight:normal;
+
+    text-align:left;
+
+}
+
+.meta-pagina .cabecalho{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:flex-start;
 
 }
 
@@ -2773,7 +2277,9 @@ td{
 
     }
 
-    .rua{
+    .rua,
+    .titulo-pagina th,
+    .meta-pagina th{
 
         -webkit-print-color-adjust:exact;
 
@@ -2789,43 +2295,33 @@ td{
 
 <body>
 
-<h1>
-
-⚠️ ITENS SEM PULMÃO — VERIFICAÇÃO MANUAL
-
-</h1>
-
-<div class="cabecalho">
-
-    <div>
-
-        <b>Data:</b>
-
-        ${new Date().toLocaleString("pt-BR")}
-
-    </div>
-
-    <div>
-
-        <b>Pavilhão:</b>
-
-        ${pavilhoesFiltro.length ? pavilhoesFiltro.join(", ") : "Todos"}
-
-    </div>
-
-    <div>
-
-        <b>Total:</b>
-
-        ${dadosImpressao.length} SKUs
-
-    </div>
-
-</div>
-
 <table>
 
 <thead>
+
+<tr class="titulo-pagina">
+
+<th colspan="4">⚠️ ITENS SEM PULMÃO — VERIFICAÇÃO MANUAL</th>
+
+</tr>
+
+<tr class="meta-pagina">
+
+<th colspan="4">
+
+    <div class="cabecalho">
+
+        <div><b>Data:</b> ${new Date().toLocaleString("pt-BR")}</div>
+
+        <div><b>Pavilhão:</b> ${pavilhoesFiltro.length ? pavilhoesFiltro.join(", ") : "Todos"}</div>
+
+        <div><b>Total:</b> ${dadosImpressao.length} SKUs</div>
+
+    </div>
+
+</th>
+
+</tr>
 
 <tr>
 
@@ -3276,13 +2772,61 @@ td{
 
     display:block;
 
-    height:22px;
+    height:36px;
 
-    border:1px solid #999;
+    border:1.5px solid #888;
 
-    border-radius:3px;
+    border-radius:4px;
 
     background:#fff;
+
+}
+
+.titulo-pagina th{
+
+    background:#fff !important;
+
+    color:#1e3a8a;
+
+    border:none;
+
+    padding:2px 0 8px 0;
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    text-align:center;
+
+}
+
+.meta-pagina th{
+
+    background:#fff !important;
+
+    color:#222;
+
+    border:none;
+
+    border-bottom:2px solid #2563eb;
+
+    padding:0 0 8px 0;
+
+    font-size:12px;
+
+    font-weight:normal;
+
+    text-align:left;
+
+}
+
+.meta-pagina .cabecalho{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:flex-start;
 
 }
 
@@ -3295,7 +2839,9 @@ td{
     }
 
     .critico,
-    .alta{
+    .alta,
+    .titulo-pagina th,
+    .meta-pagina th{
 
         -webkit-print-color-adjust:exact;
 
@@ -3311,43 +2857,33 @@ td{
 
 <body>
 
-<h1>
-
-📋 GERADOR DE ABASTECIMENTO PCP — PEDIDO GERAL
-
-</h1>
-
-<div class="cabecalho">
-
-    <div>
-
-        <b>Data:</b>
-
-        ${new Date().toLocaleString("pt-BR")}
-
-    </div>
-
-    <div>
-
-        <b>Pavilhão:</b>
-
-        ${pavilhoesFiltro.length ? pavilhoesFiltro.join(", ") : "Todos"}
-
-    </div>
-
-    <div>
-
-        <b>Total:</b>
-
-        ${dadosImpressao.length} SKUs — ${totalPedido.toLocaleString("pt-BR")} unidades pedidas
-
-    </div>
-
-</div>
-
 <table>
 
 <thead>
+
+<tr class="titulo-pagina">
+
+<th colspan="4">📋 GERADOR DE ABASTECIMENTO PCP — PEDIDO GERAL</th>
+
+</tr>
+
+<tr class="meta-pagina">
+
+<th colspan="4">
+
+    <div class="cabecalho">
+
+        <div><b>Data:</b> ${new Date().toLocaleString("pt-BR")}</div>
+
+        <div><b>Pavilhão:</b> ${pavilhoesFiltro.length ? pavilhoesFiltro.join(", ") : "Todos"}</div>
+
+        <div><b>Total:</b> ${dadosImpressao.length} SKUs — ${totalPedido.toLocaleString("pt-BR")} unidades pedidas</div>
+
+    </div>
+
+</th>
+
+</tr>
 
 <tr>
 
