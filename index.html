@@ -24,6 +24,22 @@
 
 <body>
 
+    <!-- ABERTURA — MARCAS -->
+    <div id="telaAbertura" class="abertura-overlay" role="status" aria-label="Carregando aplicação">
+        <div class="abertura-glow abertura-glow-top" aria-hidden="true"></div>
+        <div class="abertura-glow abertura-glow-bottom" aria-hidden="true"></div>
+        <div class="abertura-marca abertura-stok">
+            <img src="logo-stok-transparente.png" alt="Stok Center">
+        </div>
+        <div class="abertura-encontro" aria-hidden="true">
+            <span></span><i></i><span></span>
+        </div>
+        <div class="abertura-marca abertura-zaffari">
+            <img src="logo-zaffari-transparente.png" alt="Comercial Zaffari">
+        </div>
+        <p class="abertura-frase">Uma operação, duas grandes marcas</p>
+    </div>
+
     <div class="container">
 
         <h1>
@@ -550,8 +566,21 @@
 
 <script src="script.js"></script>
 <script src="sync.js"></script>
+<script>
+    (function iniciarAbertura(){
+        const tela = document.getElementById('telaAbertura');
+        if (!tela) return;
+
+        const reduzirMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const duracao = reduzirMovimento ? 150 : 2100;
+
+        window.setTimeout(() => {
+            tela.classList.add('abertura-saindo');
+            window.setTimeout(() => tela.remove(), 350);
+        }, duracao);
+    })();
+</script>
 
 </body>
 
 </html>
-
