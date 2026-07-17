@@ -142,6 +142,14 @@
 
     </button>
 
+    <button
+        class="btn-exportar"
+        onclick="gerarLiberacao210()">
+
+        🧱 Liberação de Endereços 2.10
+
+    </button>
+
 </div>
 
         </div>
@@ -551,6 +559,154 @@
                     </thead>
 
                     <tbody id="tbodySugestoes">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================== -->
+<!-- MODAL LIBERAÇÃO DE ENDEREÇOS 2.10 -->
+<!-- ===================================== -->
+
+<div
+    class="modal-sugestao"
+    id="modalLiberacao210">
+
+    <div class="modal-conteudo">
+
+        <div class="modal-topo">
+
+            <h2>
+                🧱 Liberação de Endereços 2.10
+            </h2>
+
+            <button
+                class="btn-fechar"
+                onclick="fecharModalLiberacao210()">
+
+                Fechar ✕
+
+            </button>
+
+        </div>
+
+        <div class="modal-corpo">
+
+            <p style="color:var(--text-muted);font-size:.85rem;margin:0 0 18px;max-width:900px;">
+                Identifica pallets baixos (pouca quantidade) ocupando endereços de Pulmão
+                do tipo 2.10 e sugere movê-los para um endereço 1.5 livre, liberando o
+                espaço alto para pallets que realmente precisam dele. Usa os mesmos dados
+                de Posição de Endereços já carregados no upload do topo — não precisa
+                subir arquivo de novo.
+            </p>
+
+            <div class="cards-mov">
+
+                <div class="card-mov">
+                    <h3>Total Candidatos</h3>
+                    <span id="liber210Total">0</span>
+                </div>
+
+                <div class="card-mov">
+                    <h3>Sem Destino Livre</h3>
+                    <span id="liber210SemDestino">0</span>
+                </div>
+
+                <div class="card-mov">
+                    <h3>Caixas a Liberar</h3>
+                    <span id="liber210Caixas">0</span>
+                </div>
+
+                <div class="card-mov">
+                    <h3>Com Destino Livre</h3>
+                    <span id="liber210ComDestino">0</span>
+                </div>
+
+            </div>
+
+            <div class="filtros-mov">
+
+                <input
+                    type="text"
+                    id="liber210PadraoAlto"
+                    placeholder="Padrão endereço 2.10 (ex: 2.10)"
+                    value="2.10">
+
+                <input
+                    type="text"
+                    id="liber210PadraoBaixo"
+                    placeholder="Padrão endereço 1.5 (ex: 1.50)"
+                    value="1.50">
+
+                <input
+                    type="number"
+                    id="liber210OcupacaoMax"
+                    placeholder="% ocupação máx"
+                    value="50"
+                    min="1"
+                    max="100">
+
+                <button
+                    class="btn-exportar"
+                    onclick="gerarLiberacao210()">
+
+                    🔄 Atualizar
+
+                </button>
+
+            </div>
+
+            <div class="filtros-mov">
+
+                <input
+                    type="text"
+                    id="filtroLiber210SKU"
+                    placeholder="Filtrar SKU">
+
+                <input
+                    type="text"
+                    id="filtroLiber210Rua"
+                    placeholder="Filtrar Rua">
+
+                <button
+                    class="btn-exportar"
+                    onclick="imprimirLiberacao210Modal()">
+
+                    🖨️ Imprimir
+
+                </button>
+
+            </div>
+
+            <div class="tabela-container">
+
+                <table class="tabela-mov">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>SKU</th>
+                            <th>Produto</th>
+                            <th>Rua</th>
+                            <th>Endereço 2.10 Atual</th>
+                            <th>Caixas</th>
+                            <th>Ocupação</th>
+                            <th>Mover para (1.5)</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="tbodyLiber210">
 
                     </tbody>
 

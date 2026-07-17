@@ -1214,11 +1214,39 @@ window.addEventListener("load",()=>{
 
     });
 
+    document
+    .getElementById("filtroLiber210SKU")
+    .addEventListener(
+        "input",
+        aplicarFiltrosLiberacao210
+    );
+
+    document
+    .getElementById("filtroLiber210Rua")
+    .addEventListener(
+        "input",
+        aplicarFiltrosLiberacao210
+    );
+
+    document
+    .getElementById("modalLiberacao210")
+    .addEventListener("click", function(e){
+
+        if(e.target === this){
+
+            fecharModalLiberacao210();
+
+        }
+
+    });
+
     document.addEventListener("keydown", function(e){
 
         if(e.key === "Escape"){
 
             fecharModalSugestao();
+
+            fecharModalLiberacao210();
 
         }
 
@@ -3854,6 +3882,795 @@ window.PagedConfig = {
 `;
 
 
+
+    janela.document.open();
+
+    janela.document.write(html);
+
+    janela.document.close();
+
+}
+
+// =====================================
+// LIBERAÇÃO DE ENDEREÇOS 2.10
+// =====================================
+// Identifica pallets baixos (pouca quantidade) ocupando
+// endereços de Pulmão do tipo "2.10" (posições altas) e
+// sugere movê-los para um endereço livre do tipo "1.5"
+// (posições baixas), liberando o espaço alto para pallets
+// que realmente precisam da altura.
+//
+// Usa os mesmos dados de Posição de Endereços já carregados
+// pelo upload único do topo da página (dadosPosicoes) — é a
+// mesma base que alimenta o Resultado (pedido geral / apanha
+// / abastecimento) e a Sugestão de Movimentação. Nenhum
+// upload extra é necessário: as 3 funções leem a mesma base.
+//
+// O campo que identifica o tipo físico do endereço é o
+// TIPEND (mesmo campo já logado no console ao processar). Como
+// o texto exato gravado nesse campo pode variar no arquivo real
+// (ex: "2.10", "2,10", "PULM 2.10"...), os padrões de busca
+// ficam editáveis na tela — ajuste-os conforme o valor real que
+// aparecer no console (F12) caso a lista venha vazia.
+
+let liberacao210 = [];
+
+function normalizarTipend(valor){
+
+    return String(valor || "")
+    .toUpperCase()
+    .replace(",", ".")
+    .replace(/\s+/g, "")
+    .trim();
+
+}
+
+function enderecoCorrespondeAltura(tipendValor, padrao){
+
+    const alvo = normalizarTipend(padrao);
+
+    if(!alvo) return false;
+
+    return normalizarTipend(tipendValor).includes(alvo);
+
+}
+
+function formatarCaixas(numero){
+
+    return Number(numero || 0)
+    .toLocaleString("pt-BR", {
+        minimumFractionDigits:0,
+        maximumFractionDigits:2
+    });
+
+}
+
+// =====================================
+// MAPA DE PULMÕES 1.5 LIVRES
+// =====================================
+
+function construirMapaPulmoes15Livres(dadosPosicoes, padraoBaixo){
+
+    const mapa = {};
+
+    dadosPosicoes.forEach(p=>{
+
+        const especie =
+        String(p.ESPECIE_END || "").toUpperCase();
+
+        if(!especie.includes("PULM")){
+            return;
+        }
+
+        const status =
+        String(p.STATUS_ENDERECO || "")
+        .toUpperCase()
+        .trim();
+
+        if(status !== "DISPONIVEL"){
+            return;
+        }
+
+        if(!enderecoCorrespondeAltura(p.TIPEND, padraoBaixo)){
+            return;
+        }
+
+        const rua = Number(p.CODRUA);
+
+        if(!mapa[rua]){
+            mapa[rua] = [];
+        }
+
+        mapa[rua].push(p);
+
+    });
+
+    Object.values(mapa).forEach(lista=>{
+
+        lista.sort((a,b)=>
+            Number(a.NROPREDIO) - Number(b.NROPREDIO)
+        );
+
+    });
+
+    return mapa;
+
+}
+
+function buscarPulmao15Livre(rua, mapa){
+
+    const candidatos = mapa[Number(rua)];
+
+    if(!candidatos || !candidatos.length){
+        return null;
+    }
+
+    return candidatos.shift();
+
+}
+
+// =====================================
+// GERAR LIBERAÇÃO 2.10
+// =====================================
+
+async function gerarLiberacao210(){
+
+    if(!dadosPosicoes.length){
+
+        alert(
+            "Processe os arquivos primeiro (carregue a Posição de Endereços)."
+        );
+
+        return;
+
+    }
+
+    mostrarLoading();
+
+    await new Promise(resolve=>setTimeout(resolve,50));
+
+    try{
+
+        const padraoAlto =
+        (document.getElementById("liber210PadraoAlto")?.value || "").trim()
+        || "2.10";
+
+        const padraoBaixo =
+        (document.getElementById("liber210PadraoBaixo")?.value || "").trim()
+        || "1.50";
+
+        const ocupacaoMax =
+        Number(document.getElementById("liber210OcupacaoMax")?.value) || 50;
+
+        const temTipend =
+        dadosPosicoes.some(p=>
+            p.TIPEND !== undefined &&
+            String(p.TIPEND).trim() !== ""
+        );
+
+        if(!temTipend){
+
+            alert(
+                "A Posição de Endereços carregada não tem a coluna TIPEND preenchida — " +
+                "sem ela não é possível identificar quais endereços são 2.10 ou 1.5. " +
+                "Confira no console (F12) o nome real dessa coluna no seu arquivo."
+            );
+
+            ocultarLoading();
+
+            return;
+
+        }
+
+        const mapaPulmoes15 =
+        construirMapaPulmoes15Livres(
+            dadosPosicoes,
+            padraoBaixo
+        );
+
+        liberacao210 = [];
+
+        dadosPosicoes.forEach(p=>{
+
+            const especie =
+            String(p.ESPECIE_END || "").toUpperCase();
+
+            if(!especie.includes("PULM")){
+                return;
+            }
+
+            if(!enderecoCorrespondeAltura(p.TIPEND, padraoAlto)){
+                return;
+            }
+
+            const qtdEnd = Number(p.QTD_END || 0);
+
+            if(qtdEnd <= 0){
+                return; // endereço vazio, nada a liberar
+            }
+
+            const embalagem = Number(p.EMBALAGEM || 0);
+
+            // Conversão de unidades para caixas — sempre.
+            const caixas =
+            embalagem > 0
+            ? qtdEnd / embalagem
+            : 0;
+
+            const normaInfo =
+            calcularNorma(p.NORMA_PULMAO);
+
+            const norma = normaInfo.valor;
+
+            const ocupacao =
+            norma > 0
+            ? (caixas / norma) * 100
+            : null;
+
+            // Pouca quantidade = ocupação abaixo do limite definido
+            // na tela. Sem norma conhecida, usa um piso conservador
+            // de 5 caixas para não deixar de detectar o candidato.
+            const baixaOcupacao =
+            ocupacao !== null
+            ? ocupacao <= ocupacaoMax
+            : (caixas > 0 && caixas <= 5);
+
+            if(!baixaOcupacao){
+                return;
+            }
+
+            const enderecoAtual =
+            `${p.CODRUA}.${p.NROPREDIO}.${p.NROAPARTAMENTO}.${p.NROSALA}`;
+
+            const destino =
+            buscarPulmao15Livre(p.CODRUA, mapaPulmoes15);
+
+            const enderecoDestino =
+            destino
+            ? `${destino.CODRUA}.${destino.NROPREDIO}.${destino.NROAPARTAMENTO}.${destino.NROSALA}`
+            : null;
+
+            liberacao210.push({
+
+                sku: String(p.CODIGO || "").trim(),
+
+                descricao: p.DESCRICAO || "",
+
+                rua: Number(p.CODRUA) || 0,
+
+                enderecoAtual,
+
+                caixas,
+
+                embalagem,
+
+                norma,
+
+                ocupacao,
+
+                enderecoDestino
+
+            });
+
+        });
+
+        liberacao210.sort((a,b)=> a.caixas - b.caixas);
+
+        abrirModalLiberacao210();
+
+    }
+
+    catch(erro){
+
+        console.error(erro);
+
+        alert("Erro ao gerar liberação de endereços 2.10.");
+
+    }
+
+    finally{
+
+        ocultarLoading();
+
+    }
+
+}
+
+// =====================================
+// MODAL DE LIBERAÇÃO 2.10
+// =====================================
+
+function abrirModalLiberacao210(){
+
+    const modal =
+    document.getElementById("modalLiberacao210");
+
+    if(!modal){
+
+        alert(
+            "Modal de liberação de endereços não encontrado no HTML."
+        );
+
+        return;
+
+    }
+
+    document.getElementById("filtroLiber210SKU").value = "";
+
+    document.getElementById("filtroLiber210Rua").value = "";
+
+    atualizarKPIsLiberacao210();
+
+    renderizarTabelaLiberacao210(
+        liberacao210
+    );
+
+    modal.classList.add("ativo");
+
+}
+
+function fecharModalLiberacao210(){
+
+    document
+    .getElementById("modalLiberacao210")
+    .classList.remove("ativo");
+
+}
+
+function atualizarKPIsLiberacao210(){
+
+    document.getElementById("liber210Total").innerText =
+    liberacao210.length;
+
+    document.getElementById("liber210SemDestino").innerText =
+    liberacao210.filter(x=>!x.enderecoDestino).length;
+
+    document.getElementById("liber210ComDestino").innerText =
+    liberacao210.filter(x=>x.enderecoDestino).length;
+
+    document.getElementById("liber210Caixas").innerText =
+    formatarCaixas(
+        liberacao210.reduce((s,x)=>s+x.caixas,0)
+    );
+
+}
+
+function renderizarTabelaLiberacao210(dados){
+
+    const tbody =
+    document.getElementById("tbodyLiber210");
+
+    if(!dados.length){
+
+        tbody.innerHTML =
+        `<tr><td colspan="7" style="text-align:center;padding:30px;color:#6b7280;">
+        Nenhum endereço 2.10 com pallet baixo encontrado com os critérios atuais.
+        </td></tr>`;
+
+        return;
+
+    }
+
+    let html = "";
+
+    dados.forEach(item=>{
+
+        const classe =
+
+        item.ocupacao !== null && item.ocupacao <= 20
+        ? "prioridade-alta"
+        : item.ocupacao !== null && item.ocupacao <= 35
+        ? "prioridade-media"
+        : "prioridade-baixa";
+
+        const ocupacaoTexto =
+        item.ocupacao !== null
+        ? `${item.ocupacao.toFixed(0)}%`
+        : "N/D";
+
+        const moverParaTexto =
+        item.enderecoDestino
+        ? item.enderecoDestino
+        : `<span style="color:#d32f2f;">Sem endereço 1.5 livre na rua ${String(item.rua).padStart(3,"0")}</span>`;
+
+        html += `
+        <tr>
+            <td>${item.sku}</td>
+            <td style="text-align:left;">${item.descricao}</td>
+            <td>${String(item.rua).padStart(3,"0")}</td>
+            <td>${item.enderecoAtual}</td>
+            <td>${formatarCaixas(item.caixas)}</td>
+            <td class="${classe}">${ocupacaoTexto}</td>
+            <td>${moverParaTexto}</td>
+        </tr>
+        `;
+
+    });
+
+    tbody.innerHTML = html;
+
+}
+
+function obterLiberacao210Filtrada(){
+
+    const skuFiltro =
+    (document.getElementById("filtroLiber210SKU")?.value || "")
+    .toLowerCase()
+    .trim();
+
+    const ruaFiltro =
+    (document.getElementById("filtroLiber210Rua")?.value || "")
+    .toLowerCase()
+    .trim();
+
+    return liberacao210.filter(item=>{
+
+        const skuOk =
+        item.sku
+        .toString()
+        .toLowerCase()
+        .includes(skuFiltro);
+
+        const ruaOk =
+
+        !ruaFiltro ||
+
+        String(item.rua)
+        .toLowerCase()
+        .includes(ruaFiltro);
+
+        return skuOk && ruaOk;
+
+    });
+
+}
+
+function aplicarFiltrosLiberacao210(){
+
+    renderizarTabelaLiberacao210(
+        obterLiberacao210Filtrada()
+    );
+
+}
+
+function imprimirLiberacao210Modal(){
+
+    if(!liberacao210.length){
+
+        alert("Nenhum item para imprimir.");
+
+        return;
+
+    }
+
+    const janela = window.open("", "_blank");
+
+    if(!janela){
+
+        alert("Permita pop-ups para este site.");
+
+        return;
+
+    }
+
+    imprimirLiberacao210(
+        janela,
+        obterLiberacao210Filtrada()
+    );
+
+}
+
+// =====================================
+// IMPRIMIR LIBERAÇÃO 2.10
+// =====================================
+
+function imprimirLiberacao210(janela, dadosBase){
+
+    const dados =
+    dadosBase || liberacao210;
+
+    if(!dados.length){
+
+        alert("Nenhum item para imprimir.");
+
+        return;
+
+    }
+
+    let html = `
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Liberação de Endereços 2.10</title>
+
+<style>
+
+@page{
+
+    size:A4 portrait;
+
+    margin:8mm 8mm 14mm 8mm;
+
+}
+
+@page :right{
+
+    @bottom-center{
+        content:"Página " counter(page) " (frente)";
+        font-family:Arial,Helvetica,sans-serif;
+        font-size:9px;
+        color:#666;
+    }
+
+}
+
+@page :left{
+
+    @bottom-center{
+        content:"Página " counter(page) " (verso)";
+        font-family:Arial,Helvetica,sans-serif;
+        font-size:9px;
+        color:#666;
+    }
+
+}
+
+*{
+
+    box-sizing:border-box;
+
+}
+
+body{
+
+    font-family:Arial,Helvetica,sans-serif;
+
+    margin:0;
+
+    color:#222;
+
+}
+
+h1{
+
+    margin:0;
+
+    text-align:center;
+
+    color:#0F4C81;
+
+    font-size:22px;
+
+}
+
+.info{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin:15px 0;
+
+    font-size:13px;
+
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+th{
+
+    background:#0F4C81;
+
+    color:#fff;
+
+    padding:10px;
+
+    border:1px solid #DDD;
+
+    font-size:12px;
+
+}
+
+td{
+
+    border:1px solid #DDD;
+
+    padding:8px;
+
+    font-size:11px;
+
+}
+
+.alta{
+
+    background:#ffdede;
+
+}
+
+.media{
+
+    background:#fff2d6;
+
+}
+
+.baixa{
+
+    background:#ffffdd;
+
+}
+
+@media print{
+
+    th,
+    .alta,
+    .media,
+    .baixa{
+
+        -webkit-print-color-adjust:exact;
+        print-color-adjust:exact;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>
+
+🧱 LIBERAÇÃO DE ENDEREÇOS 2.10
+
+</h1>
+
+<div class="info">
+
+<div>
+
+<b>Data:</b>
+
+${new Date().toLocaleString("pt-BR")}
+
+</div>
+
+<div>
+
+<b>Total:</b>
+
+${dados.length}
+
+</div>
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>SKU</th>
+
+<th>Produto</th>
+
+<th>Rua</th>
+
+<th>Endereço 2.10</th>
+
+<th>Caixas</th>
+
+<th>Ocupação</th>
+
+<th>Mover para (1.5)</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+`;
+
+    dados.forEach(item=>{
+
+        let classe = "baixa";
+
+        if(item.ocupacao !== null && item.ocupacao <= 20){
+
+            classe = "alta";
+
+        }
+        else if(item.ocupacao !== null && item.ocupacao <= 35){
+
+            classe = "media";
+
+        }
+
+        html += `
+
+<tr class="${classe}">
+
+<td>
+
+<b>${item.sku}</b>
+
+</td>
+
+<td>
+
+${item.descricao}
+
+</td>
+
+<td style="text-align:center;">
+
+${String(item.rua).padStart(3,"0")}
+
+</td>
+
+<td>
+
+${item.enderecoAtual}
+
+</td>
+
+<td style="text-align:center;">
+
+<b>${formatarCaixas(item.caixas)}</b>
+
+</td>
+
+<td style="text-align:center;">
+
+${item.ocupacao !== null ? item.ocupacao.toFixed(0) + "%" : "N/D"}
+
+</td>
+
+<td>
+
+${item.enderecoDestino || "Sem endereço livre"}
+
+</td>
+
+</tr>
+
+`;
+
+    });
+
+    html += `
+
+</tbody>
+
+</table>
+
+<script>
+window.PagedConfig = {
+    after: () => {
+        window.focus();
+        window.print();
+    }
+};
+</script>
+<script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
+
+</body>
+
+</html>
+
+`;
 
     janela.document.open();
 
