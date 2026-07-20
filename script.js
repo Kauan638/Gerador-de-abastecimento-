@@ -1491,7 +1491,11 @@ function imprimirAbastecimentoPorVolume(){
 
     size:A4 portrait;
 
-    margin:8mm 8mm 14mm 8mm;
+    margin:34mm 8mm 14mm 8mm;
+
+    @top-center{
+        content: element(cabecalhoCorrente);
+    }
 
 }
 
@@ -1633,6 +1637,12 @@ td{
 
 }
 
+.cabecalho-corrente{
+
+    position: running(cabecalhoCorrente);
+
+}
+
 .critico{
 
     background:#ffe5e5;
@@ -1735,15 +1745,11 @@ td{
 
 }
 
-.titulo-pagina th{
-
-    background:#fff !important;
+.titulo-pagina{
 
     color:#1e3a8a;
 
-    border:none;
-
-    padding:2px 0 8px 0;
+    padding:0 0 8px 0;
 
     font-size:18px;
 
@@ -1753,13 +1759,9 @@ td{
 
 }
 
-.meta-pagina th{
-
-    background:#fff !important;
+.meta-pagina{
 
     color:#222;
-
-    border:none;
 
     border-bottom:2px solid #2563eb;
 
@@ -1783,6 +1785,14 @@ td{
 
 }
 
+.validade-pulmao{
+
+    color:#666;
+
+    font-size:9.5px;
+
+}
+
 @media print{
 
     body{
@@ -1793,8 +1803,8 @@ td{
 
     .critico,
     .alta,
-    .titulo-pagina th,
-    .meta-pagina th{
+    .titulo-pagina,
+    .meta-pagina{
 
         -webkit-print-color-adjust:exact;
 
@@ -1810,33 +1820,23 @@ td{
 
 <body>
 
+<div class="cabecalho-corrente">
+
+    <div class="titulo-pagina">🚚 GERADOR DE ABASTECIMENTO PCP — POR VOLUME FALTANTE</div>
+
+    <div class="meta-pagina">
+        <div class="cabecalho">
+            <div><b>Data:</b> ${new Date().toLocaleString("pt-BR")}</div>
+            <div><b>Pavilhão:</b> ${pavilhoesFiltro.length ? pavilhoesFiltro.join(", ") : "Todos"}</div>
+            <div><b>Total:</b> ${dadosImpressao.length} SKUs</div>
+        </div>
+    </div>
+
+</div>
+
 <table>
 
 <thead>
-
-<tr class="titulo-pagina">
-
-<th colspan="4">🚚 GERADOR DE ABASTECIMENTO PCP — POR VOLUME FALTANTE</th>
-
-</tr>
-
-<tr class="meta-pagina">
-
-<th colspan="4">
-
-    <div class="cabecalho">
-
-        <div><b>Data:</b> ${new Date().toLocaleString("pt-BR")}</div>
-
-        <div><b>Pavilhão:</b> ${pavilhoesFiltro.length ? pavilhoesFiltro.join(", ") : "Todos"}</div>
-
-        <div><b>Total:</b> ${dadosImpressao.length} SKUs</div>
-
-    </div>
-
-</th>
-
-</tr>
 
 <tr>
 
@@ -1868,6 +1868,7 @@ Reposição
 
 </thead>
 
+
 <tbody>
 
 `;
@@ -1887,18 +1888,41 @@ dadosImpressao.forEach(item=>{
 
     }
 
-    let pulmoes =
-    item.pulmao;
+    const listaPulmoesItem = item.pulmoes || [];
 
-    pulmoes =
+    const pulmoesParaExibir =
+    listaPulmoesItem.slice(0, 3);
 
-    pulmoes
+    const pulmoesRestantes =
+    listaPulmoesItem.length - pulmoesParaExibir.length;
 
-    .replace(/\s*\|\s*/g,"<br>• ")
+    let pulmoes = "Sem Pulmão";
 
-    .replace(/^/,"• ")
+    if(pulmoesParaExibir.length){
 
-    .replace("<br>• (+","<br><b>(+");
+        pulmoes =
+        pulmoesParaExibir
+        .map(p=>{
+
+            const validadeTexto =
+            p.validadeTimestamp !== Infinity
+            ? new Date(p.validadeTimestamp).toLocaleDateString("pt-BR")
+            : "s/ validade";
+
+            return `• ${p.endereco} <span class="validade-pulmao">(val. ${validadeTexto})</span>`;
+
+        })
+        .join("<br>");
+
+        if(pulmoesRestantes > 0){
+
+            pulmoes +=
+            `<br><b>(+${pulmoesRestantes} mais)</b>`;
+
+        }
+
+    }
+
 
     html += `
 
