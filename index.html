@@ -601,11 +601,13 @@
         <div class="modal-corpo">
 
             <p style="color:var(--text-muted);font-size:.85rem;margin:0 0 18px;max-width:900px;">
-                Identifica pallets baixos (pouca quantidade) ocupando endereços de Pulmão
-                do tipo 2.10 e sugere movê-los para um endereço 1.5 livre, liberando o
-                espaço alto para pallets que realmente precisam dele. Usa os mesmos dados
-                de Posição de Endereços já carregados no upload do topo — não precisa
-                subir arquivo de novo.
+                Identifica pallets baixos (pouca quantidade, abaixo da norma) ocupando
+                endereços de Pulmão do tipo 2.10 e sugere movê-los para um endereço 1.5
+                livre, liberando o espaço alto para pallets que realmente precisam dele.
+                O destino prioriza sempre a rua da Apanha do SKU — se não houver 1.5
+                livre nela, busca a rua livre mais próxima da Apanha (não a rua onde o
+                pulmão 2.10 está hoje). Usa os mesmos dados de Posição de Endereços já
+                carregados no upload do topo — não precisa subir arquivo de novo.
             </p>
 
             <div class="cards-mov">
@@ -697,6 +699,7 @@
                             <th>SKU</th>
                             <th>Produto</th>
                             <th>Rua</th>
+                            <th>Rua Apanha</th>
                             <th>Endereço 2.10 Atual</th>
                             <th>Caixas</th>
                             <th>Ocupação</th>

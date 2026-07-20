@@ -550,6 +550,40 @@ function calcularNorma(normaRaw){
 }
 
 // =====================================
+// VALIDADE (FEFO — First Expire, First Out)
+// =====================================
+// DTAVALIDADE chega no formato "AAAA-MM-DD-HH.MM.SS.ffffff".
+// Convertemos para timestamp para poder ordenar os pulmões do
+// vencimento mais próximo para o mais distante. Sem validade
+// cadastrada (campo vazio ou formato não reconhecido) vai para
+// o final da lista — não some, só não é priorizado.
+
+function parseValidade(dtavalidade){
+
+    const texto =
+    String(dtavalidade || "").trim();
+
+    if(!texto){
+        return Infinity;
+    }
+
+    const match =
+    texto.match(/^(\d{4})-(\d{2})-(\d{2})/);
+
+    if(!match){
+        return Infinity;
+    }
+
+    const [, ano, mes, dia] = match;
+
+    const timestamp =
+    new Date(`${ano}-${mes}-${dia}T00:00:00`).getTime();
+
+    return isNaN(timestamp) ? Infinity : timestamp;
+
+}
+
+// =====================================
 // GERAR ABASTECIMENTO
 // =====================================
 
@@ -765,6 +799,10 @@ const listaPulmoes = pulmoes.map(p=>{
 
         quantidade:Number(p.QTD_END||0),
 
+        validade:p.DTAVALIDADE || "",
+
+        validadeTimestamp:parseValidade(p.DTAVALIDADE),
+
         livre:
 
             String(
@@ -778,6 +816,29 @@ const listaPulmoes = pulmoes.map(p=>{
         objeto:p
 
     };
+
+});
+
+// =====================================
+// ORDENA POR VALIDADE (FEFO)
+// =====================================
+// O pulmão que vai vencer primeiro sempre aparece
+// primeiro na lista — isso é o que alimenta o texto
+// "Pulmões" exibido/impresso (inclusive na impressão
+// por volume). Pulmões com quantidade zero (vazios)
+// vão para o final, pois não representam estoque físico
+// disponível a ser priorizado na retirada.
+
+listaPulmoes.sort((a,b)=>{
+
+    const aVazio = a.quantidade <= 0;
+    const bVazio = b.quantidade <= 0;
+
+    if(aVazio !== bVazio){
+        return aVazio ? 1 : -1;
+    }
+
+    return a.validadeTimestamp - b.validadeTimestamp;
 
 });
 
@@ -4010,6 +4071,96 @@ function buscarPulmao15Livre(rua, mapa){
 }
 
 // =====================================
+// MAPA DE RUA DA APANHA POR SKU
+// =====================================
+// A liberação de 2.10 precisa saber, para cada SKU, em
+// qual rua fica a posição de Apanha — é essa rua que manda
+// na escolha do endereço de destino 1.5, não a rua onde o
+// pulmão 2.10 está hoje.
+
+function construirMapaApanhaPorSku(dadosPosicoes){
+
+    const mapa = {};
+
+    dadosPosicoes.forEach(p=>{
+
+        const especie =
+        String(p.ESPECIE_END || "").toUpperCase();
+
+        if(!especie.includes("APANHA")){
+            return;
+        }
+
+        const sku =
+        String(p.CODIGO || "")
+        .replace(",00","")
+        .replace(".00","")
+        .trim();
+
+        if(!sku || mapa[sku] !== undefined){
+            return;
+        }
+
+        mapa[sku] = Number(p.CODRUA);
+
+    });
+
+    return mapa;
+
+}
+
+// =====================================
+// BUSCA DE DESTINO 1.5 — PRIORIZA RUA DA APANHA
+// =====================================
+// 1) Tenta primeiro um endereço 1.5 livre exatamente na
+//    rua informada (a rua da apanha do SKU).
+// 2) Se não encontrar, joga para a rua mais próxima da
+//    apanha que ainda tiver endereço 1.5 livre — nunca
+//    pela rua onde o pulmão 2.10 está hoje.
+
+function buscarPulmao15MaisProximo(ruaAlvo, mapa){
+
+    const direto =
+    buscarPulmao15Livre(ruaAlvo, mapa);
+
+    if(direto){
+        return direto;
+    }
+
+    let melhorRua = null;
+    let menorDistancia = Infinity;
+
+    Object.keys(mapa).forEach(ruaChave=>{
+
+        const rua = Number(ruaChave);
+        const candidatos = mapa[rua];
+
+        if(!candidatos || !candidatos.length){
+            return;
+        }
+
+        const distancia =
+        Math.abs(rua - Number(ruaAlvo));
+
+        if(
+            distancia < menorDistancia ||
+            (distancia === menorDistancia && rua < melhorRua)
+        ){
+            menorDistancia = distancia;
+            melhorRua = rua;
+        }
+
+    });
+
+    if(melhorRua === null){
+        return null;
+    }
+
+    return buscarPulmao15Livre(melhorRua, mapa);
+
+}
+
+// =====================================
 // GERAR LIBERAÇÃO 2.10
 // =====================================
 
@@ -4068,6 +4219,11 @@ async function gerarLiberacao210(){
             padraoBaixo
         );
 
+        const mapaApanhaPorSku =
+        construirMapaApanhaPorSku(
+            dadosPosicoes
+        );
+
         liberacao210 = [];
 
         dadosPosicoes.forEach(p=>{
@@ -4122,8 +4278,22 @@ async function gerarLiberacao210(){
             const enderecoAtual =
             `${p.CODRUA}.${p.NROPREDIO}.${p.NROAPARTAMENTO}.${p.NROSALA}`;
 
+            const skuAtual =
+            String(p.CODIGO || "").trim();
+
+            // Rua da apanha desse SKU manda na escolha do
+            // destino. Sem apanha cadastrada (raro), cai de
+            // volta na rua do próprio pulmão como segurança.
+            const ruaApanha =
+            mapaApanhaPorSku[skuAtual] !== undefined
+            ? mapaApanhaPorSku[skuAtual]
+            : Number(p.CODRUA);
+
             const destino =
-            buscarPulmao15Livre(p.CODRUA, mapaPulmoes15);
+            buscarPulmao15MaisProximo(
+                ruaApanha,
+                mapaPulmoes15
+            );
 
             const enderecoDestino =
             destino
@@ -4132,11 +4302,13 @@ async function gerarLiberacao210(){
 
             liberacao210.push({
 
-                sku: String(p.CODIGO || "").trim(),
+                sku: skuAtual,
 
                 descricao: p.DESCRICAO || "",
 
                 rua: Number(p.CODRUA) || 0,
+
+                ruaApanha,
 
                 enderecoAtual,
 
@@ -4243,7 +4415,7 @@ function renderizarTabelaLiberacao210(dados){
     if(!dados.length){
 
         tbody.innerHTML =
-        `<tr><td colspan="7" style="text-align:center;padding:30px;color:#6b7280;">
+        `<tr><td colspan="8" style="text-align:center;padding:30px;color:#6b7280;">
         Nenhum endereço 2.10 com pallet baixo encontrado com os critérios atuais.
         </td></tr>`;
 
@@ -4271,13 +4443,14 @@ function renderizarTabelaLiberacao210(dados){
         const moverParaTexto =
         item.enderecoDestino
         ? item.enderecoDestino
-        : `<span style="color:#d32f2f;">Sem endereço 1.5 livre na rua ${String(item.rua).padStart(3,"0")}</span>`;
+        : `<span style="color:#d32f2f;">Sem endereço 1.5 livre em nenhuma rua</span>`;
 
         html += `
         <tr>
             <td>${item.sku}</td>
             <td style="text-align:left;">${item.descricao}</td>
             <td>${String(item.rua).padStart(3,"0")}</td>
+            <td>${String(item.ruaApanha).padStart(3,"0")}</td>
             <td>${item.enderecoAtual}</td>
             <td>${formatarCaixas(item.caixas)}</td>
             <td class="${classe}">${ocupacaoTexto}</td>
@@ -4567,6 +4740,8 @@ ${dados.length}
 
 <th>Rua</th>
 
+<th>Rua Apanha</th>
+
 <th>Endereço 2.10</th>
 
 <th>Caixas</th>
@@ -4620,6 +4795,12 @@ ${String(item.rua).padStart(3,"0")}
 
 </td>
 
+<td style="text-align:center;">
+
+${String(item.ruaApanha).padStart(3,"0")}
+
+</td>
+
 <td>
 
 ${item.enderecoAtual}
@@ -4640,7 +4821,7 @@ ${item.ocupacao !== null ? item.ocupacao.toFixed(0) + "%" : "N/D"}
 
 <td>
 
-${item.enderecoDestino || "Sem endereço livre"}
+${item.enderecoDestino || "Sem endereço 1.5 livre em nenhuma rua"}
 
 </td>
 
