@@ -154,6 +154,7 @@ ABERTURA — MARCAS (MOBILE)
     border-radius:50%;
     background:#C99227;
     box-shadow:0 0 0 6px rgba(201,146,39,.14);
+    animation:aberturaPulso 1.4s ease-in-out 1.45s infinite;
 }
 
 .abertura-frase{
@@ -188,6 +189,11 @@ ABERTURA — MARCAS (MOBILE)
     to{ opacity:1; transform:translateY(0); }
 }
 
+@keyframes aberturaPulso{
+    0%,100%{ box-shadow:0 0 0 6px rgba(201,146,39,.14); }
+    50%{ box-shadow:0 0 0 10px rgba(201,146,39,.24); }
+}
+
 @media(max-width:360px){
     .abertura-overlay{
         padding:54px 24px calc(78px + env(safe-area-inset-bottom));
@@ -201,6 +207,7 @@ ABERTURA — MARCAS (MOBILE)
 @media(prefers-reduced-motion:reduce){
     .abertura-marca,
     .abertura-encontro,
+    .abertura-encontro i,
     .abertura-frase{
         animation:none;
         opacity:1;

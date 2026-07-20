@@ -736,16 +736,16 @@
 
         const reduzirMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        // Em telas largas (PC/notebook) a mesma duração passa a
-        // impressão de ser mais rápida do que no celular — a marca
-        // ocupa proporcionalmente menos espaço visual e o olho tem
-        // mais área pra percorrer. Damos mais tempo nesses casos,
-        // mantendo o tempo original no celular.
+        // A animação de entrada (logos + frase) termina por volta de
+        // 1,65s. O resto do tempo é uma pausa parada antes do fade —
+        // era essa pausa comprida (3,2s - 1,65s = ~1,55s parado) que
+        // estava dando a sensação de lentidão no PC, não a duração
+        // em si. Reduzindo a folga pra ficar mais próxima do celular.
         const telaLarga = window.matchMedia('(min-width: 768px)').matches;
 
         const duracao =
         reduzirMovimento ? 150 :
-        telaLarga ? 3200 :
+        telaLarga ? 2450 :
         2100;
 
         window.setTimeout(() => {
