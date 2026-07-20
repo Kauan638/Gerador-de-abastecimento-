@@ -4214,8 +4214,20 @@ async function gerarLiberacao210(){
         (document.getElementById("liber210PadraoBaixo")?.value || "").trim()
         || "1.50";
 
+        // Number("0") || 50 daria 50, porque 0 é "falsy" em JS —
+        // isso fazia o campo "0" (sem limite de ocupação) virar
+        // silenciosamente 50%. Aqui só cai no padrão de 50 quando
+        // o campo está realmente vazio ou não é um número válido.
+        const ocupacaoMaxInput =
+        document.getElementById("liber210OcupacaoMax")?.value;
+
         const ocupacaoMax =
-        Number(document.getElementById("liber210OcupacaoMax")?.value) || 50;
+        ocupacaoMaxInput !== undefined &&
+        ocupacaoMaxInput !== null &&
+        String(ocupacaoMaxInput).trim() !== "" &&
+        !isNaN(Number(ocupacaoMaxInput))
+        ? Number(ocupacaoMaxInput)
+        : 50;
 
         const temTipend =
         dadosPosicoes.some(p=>
@@ -4336,6 +4348,8 @@ async function gerarLiberacao210(){
 
                 enderecoAtual,
 
+                tipendAtual: String(p.TIPEND || "").trim(),
+
                 caixas,
 
                 embalagem,
@@ -4344,7 +4358,10 @@ async function gerarLiberacao210(){
 
                 ocupacao,
 
-                enderecoDestino
+                enderecoDestino,
+
+                tipendDestino:
+                destino ? String(destino.TIPEND || "").trim() : ""
 
             });
 
@@ -4439,7 +4456,7 @@ function renderizarTabelaLiberacao210(dados){
     if(!dados.length){
 
         tbody.innerHTML =
-        `<tr><td colspan="8" style="text-align:center;padding:30px;color:#6b7280;">
+        `<tr><td colspan="10" style="text-align:center;padding:30px;color:#6b7280;">
         Nenhum endereço 2.10 com pallet baixo encontrado com os critérios atuais.
         </td></tr>`;
 
@@ -4476,9 +4493,11 @@ function renderizarTabelaLiberacao210(dados){
             <td>${String(item.rua).padStart(3,"0")}</td>
             <td>${String(item.ruaApanha).padStart(3,"0")}</td>
             <td>${item.enderecoAtual}</td>
+            <td style="font-size:.75rem;color:var(--text-muted);">${item.tipendAtual || "—"}</td>
             <td>${formatarCaixas(item.caixas)}</td>
             <td class="${classe}">${ocupacaoTexto}</td>
             <td>${moverParaTexto}</td>
+            <td style="font-size:.75rem;color:var(--text-muted);">${item.tipendDestino || "—"}</td>
         </tr>
         `;
 
@@ -4532,9 +4551,14 @@ function aplicarFiltrosLiberacao210(){
 
 function imprimirLiberacao210Modal(){
 
-    if(!liberacao210.length){
+    const dadosFiltrados =
+    obterLiberacao210Filtrada();
 
-        alert("Nenhum item para imprimir.");
+    if(!dadosFiltrados.length){
+
+        alert(
+            "Nenhum item para imprimir com os filtros de SKU/Rua atuais."
+        );
 
         return;
 
@@ -4552,7 +4576,7 @@ function imprimirLiberacao210Modal(){
 
     imprimirLiberacao210(
         janela,
-        obterLiberacao210Filtrada()
+        dadosFiltrados
     );
 
 }
@@ -4768,11 +4792,15 @@ ${dados.length}
 
 <th>Endereço 2.10</th>
 
+<th>TIPEND Atual</th>
+
 <th>Caixas</th>
 
 <th>Ocupação</th>
 
 <th>Mover para (1.5)</th>
+
+<th>TIPEND Destino</th>
 
 </tr>
 
@@ -4831,6 +4859,12 @@ ${item.enderecoAtual}
 
 </td>
 
+<td style="text-align:center;font-size:9px;color:#666;">
+
+${item.tipendAtual || "—"}
+
+</td>
+
 <td style="text-align:center;">
 
 <b>${formatarCaixas(item.caixas)}</b>
@@ -4846,6 +4880,12 @@ ${item.ocupacao !== null ? item.ocupacao.toFixed(0) + "%" : "N/D"}
 <td>
 
 ${item.enderecoDestino || "Sem endereço 1.5 livre em nenhuma rua"}
+
+</td>
+
+<td style="text-align:center;font-size:9px;color:#666;">
+
+${item.tipendDestino || "—"}
 
 </td>
 

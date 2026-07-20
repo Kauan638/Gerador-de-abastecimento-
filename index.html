@@ -671,18 +671,20 @@
                 <input
                     type="text"
                     id="filtroLiber210SKU"
-                    placeholder="Filtrar SKU">
+                    placeholder="Filtrar SKU"
+                    oninput="aplicarFiltrosLiberacao210()">
 
                 <input
                     type="text"
                     id="filtroLiber210Rua"
-                    placeholder="Filtrar Rua">
+                    placeholder="Filtrar Rua"
+                    oninput="aplicarFiltrosLiberacao210()">
 
                 <button
                     class="btn-exportar"
                     onclick="imprimirLiberacao210Modal()">
 
-                    🖨️ Imprimir
+                    🖨️ Imprimir Filtrados
 
                 </button>
 
@@ -701,9 +703,11 @@
                             <th>Rua</th>
                             <th>Rua Apanha</th>
                             <th>Endereço 2.10 Atual</th>
+                            <th>TIPEND Atual</th>
                             <th>Caixas</th>
                             <th>Ocupação</th>
                             <th>Mover para (1.5)</th>
+                            <th>TIPEND Destino</th>
 
                         </tr>
 
