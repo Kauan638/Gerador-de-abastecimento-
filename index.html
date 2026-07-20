@@ -735,7 +735,18 @@
         if (!tela) return;
 
         const reduzirMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const duracao = reduzirMovimento ? 150 : 2100;
+
+        // Em telas largas (PC/notebook) a mesma duração passa a
+        // impressão de ser mais rápida do que no celular — a marca
+        // ocupa proporcionalmente menos espaço visual e o olho tem
+        // mais área pra percorrer. Damos mais tempo nesses casos,
+        // mantendo o tempo original no celular.
+        const telaLarga = window.matchMedia('(min-width: 768px)').matches;
+
+        const duracao =
+        reduzirMovimento ? 150 :
+        telaLarga ? 3200 :
+        2100;
 
         window.setTimeout(() => {
             tela.classList.add('abertura-saindo');
