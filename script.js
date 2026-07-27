@@ -385,7 +385,7 @@ console.log(
 console.log(
     [...new Set(
         dadosPosicoes.map(
-            x=>x.TIPEND
+            x=>x.TIPEND_PULMAO
         )
     )]
 );
@@ -4056,7 +4056,7 @@ function construirMapaPulmoes15Livres(dadosPosicoes, padraoBaixo){
             return;
         }
 
-        if(!enderecoCorrespondeAltura(p.TIPEND, padraoBaixo)){
+        if(!enderecoCorrespondeAltura(p.TIPEND_PULMAO, padraoBaixo)){
             return;
         }
 
@@ -4231,14 +4231,14 @@ async function gerarLiberacao210(){
 
         const temTipend =
         dadosPosicoes.some(p=>
-            p.TIPEND !== undefined &&
-            String(p.TIPEND).trim() !== ""
+            p.TIPEND_PULMAO !== undefined &&
+            String(p.TIPEND_PULMAO).trim() !== ""
         );
 
         if(!temTipend){
 
             alert(
-                "A Posição de Endereços carregada não tem a coluna TIPEND preenchida — " +
+                "A Posição de Endereços carregada não tem a coluna TIPEND_PULMAO preenchida — " +
                 "sem ela não é possível identificar quais endereços são 2.10 ou 1.5. " +
                 "Confira no console (F12) o nome real dessa coluna no seu arquivo."
             );
@@ -4271,7 +4271,7 @@ async function gerarLiberacao210(){
                 return;
             }
 
-            if(!enderecoCorrespondeAltura(p.TIPEND, padraoAlto)){
+            if(!enderecoCorrespondeAltura(p.TIPEND_PULMAO, padraoAlto)){
                 return;
             }
 
@@ -4348,7 +4348,7 @@ async function gerarLiberacao210(){
 
                 enderecoAtual,
 
-                tipendAtual: String(p.TIPEND || "").trim(),
+                tipendAtual: String(p.TIPEND_PULMAO || "").trim(),
 
                 caixas,
 
@@ -4361,7 +4361,7 @@ async function gerarLiberacao210(){
                 enderecoDestino,
 
                 tipendDestino:
-                destino ? String(destino.TIPEND || "").trim() : ""
+                destino ? String(destino.TIPEND_PULMAO || "").trim() : ""
 
             });
 
